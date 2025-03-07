@@ -1,0 +1,22 @@
+﻿@page "/users"
+@using HotelMe.Shared
+@inject HttpClient Http
+
+<h3>Списък с потребители</h3>
+<button @onclick="LoadUsers">Презареди</button>
+
+<ul>
+    @foreach (var user in users)
+    {
+        <li>@user.Name - @user.Email</li>
+    }
+</ul>
+
+@code {
+    private List<User> users = new();
+
+    private async Task LoadUsers()
+    {
+        users = await Http.GetFromJsonAsync<List<User>>("api/users");
+    }
+}
