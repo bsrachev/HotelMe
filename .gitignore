@@ -1,0 +1,42 @@
+# 🔹 Ignore build output
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+
+# 🔹 Ignore Visual Studio settings
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# 🔹 Ignore dependency folders
+node_modules/
+wwwroot/node_modules/
+
+# 🔹 Ignore logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.cache
+.DS_Store
+Thumbs.db
+
+# 🔹 Ignore database and config files
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+*.db
+*.mdf
+*.ldf
+
+# 🔹 Ignore publish output
+publish/
