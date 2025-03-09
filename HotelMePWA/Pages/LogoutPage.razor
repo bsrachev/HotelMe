@@ -1,0 +1,13 @@
+﻿@page "/logout"
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<h3>Излизане...</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthService.Logout();
+        Navigation.NavigateTo("/");
+    }
+}

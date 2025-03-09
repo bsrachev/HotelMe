@@ -1,0 +1,21 @@
+﻿@page "/login"
+@inject AuthService AuthService
+
+<h3>Вход</h3>
+<input @bind="email" placeholder="Email" />
+<input @bind="password" type="password" placeholder="Парола" />
+<button @onclick="Login">Вход</button>
+
+@code {
+    private string email;
+    private string password;
+
+    private async Task Login()
+    {
+        var token = await AuthService.Login(email, password);
+        if (token != null)
+        {
+            // save token localStorage
+        }
+    }
+}

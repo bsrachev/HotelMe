@@ -1,44 +1,58 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">HotelMePWA</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿@inject AuthService AuthService
+@inject NavigationManager Navigation
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
+<nav class="navbar">
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="/">
+            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🏠 Начало
+        </NavLink>
+    </div>
+
+    @if (isAuthenticated)
+    {
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
+            <NavLink class="nav-link" href="/counter">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="/users">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 👤 Потребители
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/users">
-                👤 Потребители
+            <NavLink class="nav-link" href="/logout">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🚪 Изход
             </NavLink>
         </div>
-    </nav>
-</div>
+    }
+    else
+    {
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/login">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🔑 Вход
+            </NavLink>
+        </div>
+    }
+</nav>
 
 @code {
-    private bool collapseNavMenu = true;
+    private bool isAuthenticated = false;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+    protected override async Task OnInitializedAsync()
     {
-        collapseNavMenu = !collapseNavMenu;
+        isAuthenticated = await AuthService.IsUserAuthenticated();
+        AuthService.OnAuthStateChanged += UpdateAuthState;
+    }
+
+    private async void UpdateAuthState()
+    {
+        isAuthenticated = await AuthService.IsUserAuthenticated();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnAuthStateChanged -= UpdateAuthState;
     }
 }

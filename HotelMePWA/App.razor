@@ -1,4 +1,17 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿@inject AuthService AuthService
+
+<CascadingAuthenticationState>
+    <AuthorizeRouteView DefaultLayout="typeof(MainLayout)" />
+</CascadingAuthenticationState>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthService.IsUserAuthenticated();
+    }
+}
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />

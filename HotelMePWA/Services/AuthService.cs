@@ -1,0 +1,51 @@
+﻿using Microsoft.JSInterop;
+using System;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+
+public class AuthService
+{
+    private readonly HttpClient _httpClient;
+    private readonly IJSRuntime _jsRuntime;
+
+    public event Action OnAuthStateChanged;
+
+    public AuthService(HttpClient httpClient, IJSRuntime jsRuntime)
+    {
+        _httpClient = httpClient;
+        _jsRuntime = jsRuntime;
+    }
+
+    public async Task<bool> Login(string email, string password)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/auth/login", new { Email = email, Password = password });
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
+            if (result?.Token != null)
+            {
+                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+                OnAuthStateChanged?.Invoke();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public async Task Logout()
+    {
+        await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        OnAuthStateChanged?.Invoke();
+    }
+
+    public async Task<bool> IsUserAuthenticated()
+    {
+        var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+        return !string.IsNullOrEmpty(token);
+    }
+}
+
+public class AuthResponse
+{
+    public string Token { get; set; }
+}
