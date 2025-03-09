@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HotelMe.Shared;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/users")]
@@ -26,4 +27,12 @@ public class UsersController : ControllerBase
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("all-users")]
+    public async Task<IEnumerable<User>> GetAllUsers()
+    {
+        return await _context.Users.ToListAsync();
+    }
+
 }

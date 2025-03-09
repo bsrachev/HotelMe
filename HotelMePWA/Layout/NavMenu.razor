@@ -25,6 +25,12 @@
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🚪 Изход
             </NavLink>
         </div>
+        @if (userRole == "Admin")
+        {
+            <NavLink class="nav-link" href="/admin">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> ⚙️ Админ
+            </NavLink>
+        }
     }
     else
     {
@@ -37,18 +43,21 @@
 </nav>
 
 @code {
-    private bool isAuthenticated = false;
+    private bool isAuthenticated;
+    private string userRole;
 
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsUserAuthenticated();
-        AuthService.OnAuthStateChanged += UpdateAuthState;
+        userRole = await AuthService.GetUserRole();
+        AuthService.OnAuthStateChanged += UpdateAuthState; // ✅ Абонираме се за промяна
     }
 
     private async void UpdateAuthState()
     {
         isAuthenticated = await AuthService.IsUserAuthenticated();
-        StateHasChanged();
+        userRole = await AuthService.GetUserRole();
+        StateHasChanged(); // ✅ Принудително обновяване на UI
     }
 
     public void Dispose()

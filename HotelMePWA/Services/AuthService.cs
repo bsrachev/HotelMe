@@ -1,6 +1,8 @@
 ﻿using Microsoft.JSInterop;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 public class AuthService
@@ -43,6 +45,23 @@ public class AuthService
         var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
         return !string.IsNullOrEmpty(token);
     }
+
+    public async Task<string> GetUserRole()
+    {
+        var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+        if (string.IsNullOrEmpty(token)) return null;
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.ReadJwtToken(token);
+
+        // 🔹 Опитваме се да прочетем ролята както с "role", така и с дългия URI
+        var roleClaim = jwt.Claims.FirstOrDefault(c =>
+            c.Type == "role" || c.Type == ClaimTypes.Role ||
+            c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+        return roleClaim;
+    }
+
 }
 
 public class AuthResponse
