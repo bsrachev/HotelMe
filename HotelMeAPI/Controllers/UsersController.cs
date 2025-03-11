@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using HotelMe.Shared;
 using Microsoft.AspNetCore.Authorization;
+using HotelMeAPI.Attributes;
 
 [ApiController]
 [Route("api/users")]
@@ -28,7 +29,7 @@ public class UsersController : ControllerBase
         return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
     }
 
-    //[Authorize(Roles = "Admin")]
+    [AdminOnly] //[Authorize(Roles = "Admin")]
     [HttpGet("all-users")]
     public async Task<IEnumerable<User>> GetAllUsers()
     {

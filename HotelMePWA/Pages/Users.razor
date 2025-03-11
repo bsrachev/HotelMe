@@ -17,6 +17,13 @@
 
     private async Task LoadUsers()
     {
-        users = await Http.GetFromJsonAsync<List<User>>("api/users");
+        try
+        {
+            users = await Http.GetFromJsonAsync<List<User>>("api/users/all-users");
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Грешка при зареждане на потребителите: {ex.Message}");
+        }
     }
 }
