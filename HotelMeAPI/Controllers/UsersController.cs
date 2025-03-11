@@ -28,7 +28,7 @@ public class UsersController : ControllerBase
         return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
     }
 
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     [HttpGet("all-users")]
     public async Task<IEnumerable<User>> GetAllUsers()
     {

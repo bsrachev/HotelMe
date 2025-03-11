@@ -26,4 +26,8 @@
     <ProjectReference Include="..\HotelMe.Shared\HotelMe.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Attributes\" />
+  </ItemGroup>
+
 </Project>

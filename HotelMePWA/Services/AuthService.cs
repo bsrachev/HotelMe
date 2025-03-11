@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using HotelMe.Shared.Helpers;
+using Microsoft.JSInterop;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
@@ -46,20 +47,25 @@ public class AuthService
         return !string.IsNullOrEmpty(token);
     }
 
+    //public async Task<string> GetUserRole2()
+    //{
+    //    var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+    //    if (string.IsNullOrEmpty(token)) return null;
+
+    //    var handler = new JwtSecurityTokenHandler();
+    //    var jwt = handler.ReadJwtToken(token);
+
+    //    var roleClaim = jwt.Claims.FirstOrDefault(c =>
+    //        c.Type == "role" || c.Type == ClaimTypes.Role ||
+    //        c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
+
+    //    return roleClaim;
+    //}
+
     public async Task<string> GetUserRole()
     {
         var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
-        if (string.IsNullOrEmpty(token)) return null;
-
-        var handler = new JwtSecurityTokenHandler();
-        var jwt = handler.ReadJwtToken(token);
-
-        // 🔹 Опитваме се да прочетем ролята както с "role", така и с дългия URI
-        var roleClaim = jwt.Claims.FirstOrDefault(c =>
-            c.Type == "role" || c.Type == ClaimTypes.Role ||
-            c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")?.Value;
-
-        return roleClaim;
+        return JwtHelper.GetUserRole(token);
     }
 
 }
