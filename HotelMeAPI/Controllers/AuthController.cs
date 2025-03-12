@@ -63,26 +63,32 @@ public class AuthController : ControllerBase
     {
         new Claim(JwtRegisteredClaimNames.Sub, user.Id),
         new Claim(JwtRegisteredClaimNames.Email, user.Email),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(JwtRegisteredClaimNames.Exp, DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
     };
 
         foreach (var role in roles)
         {
+            Console.WriteLine($"✅ Adding role claim: {role}"); // Debugging
+
+            claims.Add(new Claim(ClaimTypes.Role, role));
             claims.Add(new Claim("role", role));
+            claims.Add(new Claim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", role));
         }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Issuer"],
-            claims: claims,
+            _configuration["Jwt:Issuer"],
+            _configuration["Jwt:Audience"],
+            claims,
             expires: DateTime.UtcNow.AddHours(1),
             signingCredentials: creds
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
 
 
 }

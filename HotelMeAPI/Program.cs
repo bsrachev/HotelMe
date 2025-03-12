@@ -1,4 +1,5 @@
 using HotelMeAPI.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,25 +20,24 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 
 
 // JWT Authentication
-var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = "Bearer";
-    options.DefaultChallengeScheme = "Bearer";
-}).AddJwtBearer("Bearer", options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ClockSkew = TimeSpan.Zero
-        //RoleClaimType = ClaimTypes.Role
-    };
-});
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+            ValidateIssuer = true,
+            ValidIssuer = "HotelMeAPI",
+            ValidateAudience = true,
+            ValidAudience = "HotelMeAPI",
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
 
 builder.Services.AddAuthorization();
 

@@ -13,11 +13,13 @@ namespace HotelMeAPI.Attributes
             var httpContext = context.HttpContext;
 
             var authHeader = httpContext.Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-            {
-                context.Result = new UnauthorizedResult();
-                return;
-            }
+            Console.WriteLine($"AUTH HEADER: {authHeader}");
+
+            //if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            //{
+            //    context.Result = new UnauthorizedResult();
+            //    return;
+            //}
 
             var token = authHeader.Substring("Bearer ".Length).Trim();
             var userRole = JwtHelper.GetUserRole(token);

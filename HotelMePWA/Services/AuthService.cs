@@ -2,9 +2,11 @@
 using Microsoft.JSInterop;
 using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 public class AuthService
 {
@@ -51,6 +53,21 @@ public class AuthService
     {
         var token = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
         return JwtHelper.GetUserRole(token);
+    }
+
+    public async Task<string> GetToken()
+    {
+        return await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+    }
+
+    public async Task<HttpClient> GetAuthorizedHttpClient()
+    {
+        var token = await GetToken();
+        if (!string.IsNullOrEmpty(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+        return _httpClient;
     }
 
 }
