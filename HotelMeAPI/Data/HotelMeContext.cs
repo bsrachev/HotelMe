@@ -1,4 +1,4 @@
-﻿using HotelMe.Shared;
+﻿using HotelMe.Shared.Models;
 using HotelMeAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

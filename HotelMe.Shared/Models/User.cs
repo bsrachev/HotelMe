@@ -1,4 +1,4 @@
-﻿namespace HotelMe.Shared
+﻿namespace HotelMe.Shared.Models
 {
     public class User
     {

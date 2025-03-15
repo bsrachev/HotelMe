@@ -20,7 +20,7 @@ else
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>Име</th>
+                    <th>Потребителско име</th>
                     <th>Email</th>
                 </tr>
             </thead>
@@ -29,7 +29,7 @@ else
                 {
                     <tr>
                         <td>@user.Id</td>
-                        <td>@user.Name</td>
+                        <td>@user.UserName</td> <!-- ApplicationUser uses UserName instead of Name -->
                         <td>@user.Email</td>
                     </tr>
                 }
@@ -48,7 +48,7 @@ else
     private bool isAuthenticated;
     private string userRole;
     private bool isLoading;
-    private List<User> users = new();
+    private List<ApplicationUser> users = new(); // Changed to ApplicationUser
 
     protected override async Task OnInitializedAsync()
     {
@@ -66,7 +66,7 @@ else
         try
         {
             var httpClient = await AuthService.GetAuthorizedHttpClient();
-            users = await httpClient.GetFromJsonAsync<List<User>>("api/users/all-users");
+            users = await httpClient.GetFromJsonAsync<List<ApplicationUser>>("api/users/all-users");
         }
         catch (Exception ex)
         {
@@ -78,10 +78,11 @@ else
         }
     }
 
-    private class User
+    // ApplicationUser model (mirroring the Identity class)
+    private class ApplicationUser
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public string Id { get; set; } // In Identity, Id is usually a string
+        public string UserName { get; set; } // Username replaces Name
         public string Email { get; set; }
     }
 }

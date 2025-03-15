@@ -1,39 +1,44 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using HotelMe.Shared;
-using Microsoft.AspNetCore.Authorization;
 using HotelMeAPI.Attributes;
+using HotelMeAPI.Models;
+using Microsoft.AspNetCore.Identity;
 
+//[AdminOnly]
 [ApiController]
 [Route("api/users")]
 public class UsersController : ControllerBase
 {
-    private readonly HotelMeContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public UsersController(HotelMeContext context)
+    public UsersController(UserManager<ApplicationUser> userManager)
     {
-        _context = context;
+        _userManager = userManager;
     }
 
     [HttpGet]
-    public async Task<IEnumerable<User>> GetUsers()
+    public async Task<IEnumerable<ApplicationUser>> GetUsers()
     {
-        return await _context.Users.ToListAsync();
+        return await _userManager.Users.ToListAsync();
     }
 
     [HttpPost]
-    public async Task<ActionResult<User>> CreateUser(User user)
+    public async Task<ActionResult<ApplicationUser>> CreateUser([FromBody] RegisterModel model)
     {
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+        var result = await _userManager.CreateAsync(user, model.Password);
+
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors);
+        }
+
         return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
     }
 
-    [AdminOnly] //[Authorize(Roles = "Admin")]
     [HttpGet("all-users")]
-    public async Task<IEnumerable<User>> GetAllUsers()
+    public async Task<IEnumerable<ApplicationUser>> GetAllUsers()
     {
-        return await _context.Users.ToListAsync();
+        return await _userManager.Users.ToListAsync();
     }
-
 }
