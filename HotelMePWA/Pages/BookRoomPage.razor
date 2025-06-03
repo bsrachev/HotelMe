@@ -15,6 +15,17 @@ else if (!isAuthenticated)
         ⛔ You must <a @onclick="GoLogin">log in</a> first.
     </p>
 }
+else if (existingBooking != null)
+{
+    <p class="text-success">
+        ✅ You already have a booking for room <strong>@existingBooking.RoomNumber</strong>
+        from <strong>@existingBooking.CheckInDate.ToShortDateString()</strong>
+        to <strong>@existingBooking.CheckOutDate.ToShortDateString()</strong>.
+    </p>
+    <p>
+        <a class="btn btn-secondary" href="/checkin">Go to Check-in Page</a>
+    </p>
+}
 else
 {
     <EditForm Model="request" OnValidSubmit="SubmitBooking">
@@ -62,10 +73,15 @@ else
     private bool isReady;
     private bool isSubmitting;
     private string? feedback;
+    private Booking? existingBooking;
 
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsUserAuthenticated();
+        if (isAuthenticated)
+        {
+            existingBooking = await BookingService.GetCurrentBooking();
+        }
         isReady = true;
     }
 
@@ -77,8 +93,20 @@ else
         var ok = await BookingService.CreateBooking(request);
         isSubmitting = false;
 
-        feedback = ok
-            ? "🎉 Booking created! You can now check‑in on arrival."
-            : "❌ Failed to create booking.";
+        if (ok)
+        {
+            feedback = "🎉 Booking created! You can now check‑in on arrival.";
+            existingBooking = new Booking
+            {
+                RoomNumber = request.RoomNumber,
+                CheckInDate = request.CheckInDate,
+                CheckOutDate = request.CheckOutDate,
+                Status = "Pending"
+            };
+        }
+        else
+        {
+            feedback = "❌ Failed to create booking.";
+        }
     }
 }
