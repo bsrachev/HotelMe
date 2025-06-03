@@ -1,0 +1,70 @@
+﻿@page "/checkin"
+@inject BookingService BookingService
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+<h3>🏨 Digital Check‑in</h3>
+
+@if (!isInitialized)
+{
+    <p>⏳ Loading…</p>
+}
+else if (!isAuthenticated)
+{
+    <p class="text-danger">⛔ You need to <a @onclick="GoLogin">log in</a> as a guest first.</p>
+}
+else if (booking == null)
+{
+    <p class="text-muted">No active booking found.</p>
+}
+else
+{
+    <p><strong>Room:</strong> @booking.RoomNumber</p>
+    <p><strong>Check‑in Date:</strong> @booking.CheckInDate</p>
+    <p><strong>Check‑out Date:</strong> @booking.CheckOutDate</p>
+    <p><strong>Status:</strong> @booking.Status</p>
+
+    @if (booking.Status == "Pending")
+    {
+        <button class="btn btn-success" @onclick="PerformCheckIn">✅ Check‑in</button>
+    }
+    else if (booking.Status == "CheckedIn")
+    {
+        <button class="btn btn-danger" @onclick="PerformCheckOut">🚪 Check‑out</button>
+    }
+}
+
+@code {
+    private Booking? booking;
+    private bool isAuthenticated;
+    private bool isInitialized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsUserAuthenticated();
+
+        if (isAuthenticated)
+        {
+            booking = await BookingService.GetCurrentBooking();
+        }
+
+        isInitialized = true;
+    }
+
+    private void GoLogin()
+    {
+        Nav.NavigateTo("/login");
+    }
+
+    private async Task PerformCheckIn()
+    {
+        if (await BookingService.CheckIn())
+            booking!.Status = "CheckedIn";
+    }
+
+    private async Task PerformCheckOut()
+    {
+        if (await BookingService.CheckOut())
+            booking!.Status = "CheckedOut";
+    }
+}

@@ -21,6 +21,14 @@ public class AuthService
         _jsRuntime = jsRuntime;
     }
 
+    public async Task<bool> Register(string email, string password)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/auth/register", new { Email = email, Password = password });
+
+        return response.IsSuccessStatusCode;
+    }
+
+
     public async Task<bool> Login(string email, string password)
     {
         var response = await _httpClient.PostAsJsonAsync("api/auth/login", new { Email = email, Password = password });

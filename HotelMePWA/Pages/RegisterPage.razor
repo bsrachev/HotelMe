@@ -1,0 +1,41 @@
+﻿@page "/register"
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<h3>Регистрация</h3>
+
+<input @bind="email" placeholder="Email" />
+<input @bind="password" type="password" placeholder="Парола" />
+<input @bind="confirmPassword" type="password" placeholder="Повтори паролата" />
+
+<button @onclick="Register">Регистрация</button>
+
+<p class="text-danger">@errorMessage</p>
+
+@code {
+    private string email;
+    private string password;
+    private string confirmPassword;
+    private string errorMessage;
+
+    private async Task Register()
+    {
+        errorMessage = "";
+
+        if (password != confirmPassword)
+        {
+            errorMessage = "Паролите не съвпадат!";
+            return;
+        }
+
+        var success = await AuthService.Register(email, password);
+        if (success)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        else
+        {
+            errorMessage = "Грешка при регистрацията. Моля, опитайте отново.";
+        }
+    }
+}

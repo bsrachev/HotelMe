@@ -1,0 +1,84 @@
+﻿@page "/book-room"
+@inject BookingService BookingService
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+<h3>📅 Make a Booking</h3>
+
+@if (!isReady)
+{
+    <p>⏳ Checking authentication…</p>
+}
+else if (!isAuthenticated)
+{
+    <p class="text-danger">
+        ⛔ You must <a @onclick="GoLogin">log in</a> first.
+    </p>
+}
+else
+{
+    <EditForm Model="request" OnValidSubmit="SubmitBooking">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Room Number</label>
+            <InputText class="form-control" @bind-Value="request.RoomNumber" />
+        </div>
+        <div class="mb-3">
+            <label>Check‑in Date</label>
+            <InputDate @bind-Value="request.CheckInDate" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label>Check‑out Date</label>
+            <InputDate @bind-Value="request.CheckOutDate" class="form-control" />
+        </div>
+
+        <button class="btn btn-primary" disabled="@isSubmitting">
+            @if (isSubmitting)
+            {
+                <span>⏳ Booking…</span>
+            }
+            else
+            {
+                <span>✅ Book Now</span>
+            }
+        </button>
+
+        @if (!string.IsNullOrEmpty(feedback))
+        {
+            <p class="mt-2">@feedback</p>
+        }
+    </EditForm>
+}
+
+@code {
+    private BookingRequest request = new()
+        {
+            CheckInDate = DateTime.Today,
+            CheckOutDate = DateTime.Today.AddDays(1)
+        };
+    private bool isAuthenticated;
+    private bool isReady;
+    private bool isSubmitting;
+    private string? feedback;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsUserAuthenticated();
+        isReady = true;
+    }
+
+    private void GoLogin() => Nav.NavigateTo("/login");
+
+    private async Task SubmitBooking()
+    {
+        isSubmitting = true;
+        var ok = await BookingService.CreateBooking(request);
+        isSubmitting = false;
+
+        feedback = ok
+            ? "🎉 Booking created! You can now check‑in on arrival."
+            : "❌ Failed to create booking.";
+    }
+}

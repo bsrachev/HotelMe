@@ -1,0 +1,36 @@
+﻿@page "/roomservice"
+@inject RoomService RoomService
+
+<h3>🍽️ Room Service Menu</h3>
+
+@if (isLoading)
+{
+    <p>⏳ Loading menu...</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in menu)
+        {
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <h5>@item.Name</h5>
+                    <p>@item.Description</p>
+                    <p><strong>Price:</strong> $@item.Price</p>
+                    <button class="btn btn-primary">🛒 Order</button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<MenuItem> menu = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        menu = await RoomService.GetMenu();
+        isLoading = false;
+    }
+}
