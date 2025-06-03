@@ -52,6 +52,36 @@ namespace HotelMeAPI.Controllers
 
             return CreatedAtAction(nameof(GetUserBooking), new { id = booking.Id }, booking);
         }
+
+        [HttpPost("check-in")]
+        public async Task<IActionResult> CheckIn()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.UserId == user.Id && b.Status == "Pending");
+            if (booking == null) return NotFound();
+
+            booking.Status = "CheckedIn";
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost("check-out")]
+        public async Task<IActionResult> CheckOut()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.UserId == user.Id && b.Status == "CheckedIn");
+            if (booking == null) return NotFound();
+
+            booking.Status = "CheckedOut";
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 
 }
