@@ -26,7 +26,7 @@ namespace HotelMeAPI.Controllers
             if (user == null) return Unauthorized();
 
             var booking = await _context.Bookings
-                .FirstOrDefaultAsync(b => b.UserId == user.Id && b.Status == "Pending");
+                .FirstOrDefaultAsync(b => b.UserId == user.Id && b.Status != "CheckedOut");
 
             return booking ?? (ActionResult<Booking>)NotFound();
         }
