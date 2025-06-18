@@ -14,7 +14,15 @@ public class RoomService // Food and drink menu service
 
     public async Task<List<MenuItem>> GetMenu()
     {
-        var httpClient = await _authService.GetAuthorizedHttpClient();
-        return await httpClient.GetFromJsonAsync<List<MenuItem>>("api/menu") ?? new List<MenuItem>();
+        var client = await _authService.GetAuthorizedHttpClient();
+        return await client.GetFromJsonAsync<List<MenuItem>>("api/menu") ?? new List<MenuItem>();
+    }
+
+    public async Task<bool> PlaceOrder(IEnumerable<int> menuItemIds)
+    {
+        var client = await _authService.GetAuthorizedHttpClient();
+        var payload = new { Items = menuItemIds };
+        var response = await client.PostAsJsonAsync("api/orders", payload);
+        return response.IsSuccessStatusCode;
     }
 }

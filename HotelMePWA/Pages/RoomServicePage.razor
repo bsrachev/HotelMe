@@ -12,25 +12,94 @@ else
     <div class="row">
         @foreach (var item in menu)
         {
-            <div class="col-md-4">
+            <div class="col-md-4 mb-3">
                 <div class="card p-3">
                     <h5>@item.Name</h5>
                     <p>@item.Description</p>
                     <p><strong>Price:</strong> $@item.Price</p>
-                    <button class="btn btn-primary">🛒 Order</button>
+                    <button class="btn btn-sm btn-primary" @onclick="() => AddToCart(item)">
+                        🛒 Add to cart
+                    </button>
                 </div>
             </div>
         }
     </div>
-}
 
+    @if (cart.Any())
+    {
+        <hr />
+        <h5>Your Cart (@cart.Count):</h5>
+        <ul class="list-group mb-2">
+            @foreach (var c in cart)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @c.Name
+                    <span>
+                        <button class="btn btn-sm btn-danger" @onclick="() => RemoveFromCart(c)">✖</button>
+                    </span>
+                </li>
+            }
+        </ul>
+
+        <button class="btn btn-success" @onclick="SubmitOrder" disabled="@isSubmitting">
+            @if (isSubmitting)
+            {
+                <span>⏳ Submitting…</span>
+            }
+            else
+            {
+                <span>✅ Submit Order</span>
+            }
+        </button>
+
+        @if (!string.IsNullOrEmpty(feedback))
+        {
+            <p class="mt-2">@feedback</p>
+        }
+    }
+}
 @code {
     private List<MenuItem> menu = new();
     private bool isLoading = true;
+    private List<MenuItem> cart = new();
+    private bool isSubmitting;
+    private string feedback = "";
 
     protected override async Task OnInitializedAsync()
     {
         menu = await RoomService.GetMenu();
         isLoading = false;
+    }
+
+    void AddToCart(MenuItem item)
+    {
+        cart.Add(item);
+    }
+
+    void RemoveFromCart(MenuItem item)
+    {
+        cart.Remove(item);
+    }
+
+    async Task SubmitOrder()
+    {
+        isSubmitting = true;
+        feedback = "";
+
+        // send only the IDs
+        var ids = cart.Select(x => x.Id);
+        var ok = await RoomService.PlaceOrder(ids);
+
+        if (ok)
+        {
+            feedback = "🎉 Your order has been placed!";
+            cart.Clear();
+        }
+        else
+        {
+            feedback = "❌ Failed to place order.";
+        }
+
+        isSubmitting = false;
     }
 }
