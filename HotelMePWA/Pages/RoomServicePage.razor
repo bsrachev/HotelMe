@@ -1,11 +1,14 @@
 ﻿@page "/roomservice"
+@using HotelMe.Shared.Models
 @inject RoomService RoomService
+@inject AuthService AuthService
+@inject NavigationManager Nav
 
 <h3>🍽️ Room Service Menu</h3>
 
-@if (isLoading)
+@if (!isInitialized)
 {
-    <p>⏳ Loading menu...</p>
+    <p>⏳ Loading…</p>
 }
 else
 {
@@ -17,7 +20,9 @@ else
                     <h5>@item.Name</h5>
                     <p>@item.Description</p>
                     <p><strong>Price:</strong> $@item.Price</p>
-                    <button class="btn btn-sm btn-primary" @onclick="() => AddToCart(item)">
+                    <button class="btn btn-sm btn-primary"
+                            @onclick="() => AddToCart(item)"
+                            disabled="@( !isAuthenticated )">
                         🛒 Add to cart
                     </button>
                 </div>
@@ -25,7 +30,13 @@ else
         }
     </div>
 
-    @if (cart.Any())
+    @if (!isAuthenticated)
+    {
+        <p class="text-danger mt-3">
+            ⛔ You must <a @onclick="GoLogin">log in</a> before you can order.
+        </p>
+    }
+    else if (cart.Any())
     {
         <hr />
         <h5>Your Cart (@cart.Count):</h5>
@@ -35,7 +46,10 @@ else
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     @c.Name
                     <span>
-                        <button class="btn btn-sm btn-danger" @onclick="() => RemoveFromCart(c)">✖</button>
+                        <button class="btn btn-sm btn-danger"
+                                @onclick="() => RemoveFromCart(c)">
+                            ✖
+                        </button>
                     </span>
                 </li>
             }
@@ -58,22 +72,28 @@ else
         }
     }
 }
+
 @code {
     private List<MenuItem> menu = new();
-    private bool isLoading = true;
     private List<MenuItem> cart = new();
-    private bool isSubmitting;
+    private bool isLoading, isInitialized, isAuthenticated, isSubmitting;
     private string feedback = "";
 
     protected override async Task OnInitializedAsync()
     {
+        // 1. Check login status
+        isAuthenticated = await AuthService.IsUserAuthenticated();
+
+        // 2. Load menu regardless of auth (optionally you could hide it until login)
         menu = await RoomService.GetMenu();
         isLoading = false;
+        isInitialized = true;
     }
 
     void AddToCart(MenuItem item)
     {
-        cart.Add(item);
+        if (isAuthenticated)
+            cart.Add(item);
     }
 
     void RemoveFromCart(MenuItem item)
@@ -81,12 +101,19 @@ else
         cart.Remove(item);
     }
 
+    void GoLogin() => Nav.NavigateTo("/login");
+
     async Task SubmitOrder()
     {
+        if (!isAuthenticated)
+        {
+            feedback = "⛔ Please log in first.";
+            return;
+        }
+
         isSubmitting = true;
         feedback = "";
 
-        // send only the IDs
         var ids = cart.Select(x => x.Id);
         var ok = await RoomService.PlaceOrder(ids);
 

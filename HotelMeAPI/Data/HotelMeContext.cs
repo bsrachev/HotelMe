@@ -14,6 +14,10 @@ public class HotelMeContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<ChatMessage> ChatMessages { get; set; }
 
+    public DbSet<Order> Orders { get; set; }
+    
+    public DbSet<OrderItem> OrderItems { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -21,6 +25,12 @@ public class HotelMeContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<MenuItem>()
             .Property(m => m.Price)
             .HasColumnType("decimal(18,2)");
+
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.Items)
+            .WithOne()
+            .HasForeignKey(i => i.OrderId);
 
         /*modelBuilder.Entity<MenuItem>().HasData(
             new MenuItem { Id = 1, Name = "Cheeseburger", Description = "Juicy beef burger with cheese", Price = 12.99m, Category = "Food" },

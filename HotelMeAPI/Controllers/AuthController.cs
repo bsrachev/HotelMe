@@ -1,4 +1,5 @@
 ﻿using HotelMeAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -8,6 +9,7 @@ using System.Text;
 
 [Route("api/auth")]
 [ApiController]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -21,7 +23,7 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
-    [HttpPost("register")]
+    [HttpPost("register"), AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
         var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
@@ -42,7 +44,7 @@ public class AuthController : ControllerBase
         return Ok();
     }
 
-    [HttpPost("login")]
+    [HttpPost("login"), AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);

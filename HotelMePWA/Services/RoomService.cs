@@ -21,7 +21,7 @@ public class RoomService // Food and drink menu service
     public async Task<bool> PlaceOrder(IEnumerable<int> menuItemIds)
     {
         var client = await _authService.GetAuthorizedHttpClient();
-        var payload = new { Items = menuItemIds };
+        var payload = new OrderRequest { Items = menuItemIds.ToList() };
         var response = await client.PostAsJsonAsync("api/orders", payload);
         return response.IsSuccessStatusCode;
     }
