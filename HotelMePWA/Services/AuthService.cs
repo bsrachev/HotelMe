@@ -74,6 +74,26 @@ public class AuthService
         if (!string.IsNullOrEmpty(token))
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = jwt.Claims.FirstOrDefault(c =>
+                          c.Type == JwtRegisteredClaimNames.Sub ||
+                          c.Type == ClaimTypes.NameIdentifier)?
+                          .Value ?? "demo-user";
+
+            if (_httpClient.DefaultRequestHeaders.Contains("X-User-Id"))
+                _httpClient.DefaultRequestHeaders.Remove("X-User-Id");
+            _httpClient.DefaultRequestHeaders.Add("X-User-Id", userId);
+        }
+        return _httpClient;
+    }
+
+    public async Task<HttpClient> GetAuthorizedHttpClientOld()
+    {
+        var token = await GetToken();
+        if (!string.IsNullOrEmpty(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
         return _httpClient;
     }

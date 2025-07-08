@@ -1,6 +1,5 @@
 ﻿using HotelMe.Shared.Models;
 using HotelMeAPI.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,37 +9,34 @@ namespace HotelMeAPI.Controllers
     [Route("api/bookings")]
     public class BookingsController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly HotelMeContext _context;
-
-        public BookingsController(UserManager<ApplicationUser> userManager, HotelMeContext context)
+        public BookingsController(HotelMeContext context)
         {
-            _userManager = userManager;
             _context = context;
         }
 
+        // GET /api/bookings/user
         [HttpGet("user")]
         public async Task<ActionResult<Booking>> GetUserBooking()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            var userId = Request.Headers["X-User-Id"].ToString();
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("Missing X-User-Id");
 
             var booking = await _context.Bookings
-                .FirstOrDefaultAsync(b => b.UserId == user.Id && b.Status != "CheckedOut");
-
-            return booking ?? (ActionResult<Booking>)NotFound();
+                .FirstOrDefaultAsync(b => b.UserId == userId && b.Status != "CheckedOut");
+            return booking == null ? NotFound() : Ok(booking);
         }
 
+        // POST /api/bookings
         [HttpPost]
         public async Task<ActionResult<Booking>> CreateBooking([FromBody] BookingRequest req)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            var userId = Request.Headers["X-User-Id"].ToString() ?? "demo-user";
 
-            // optionally: check for conflicts, etc.
             var booking = new Booking
             {
-                UserId = user.Id,
+                UserId = userId,
                 RoomNumber = req.RoomNumber,
                 CheckInDate = req.CheckInDate,
                 CheckOutDate = req.CheckOutDate,
@@ -53,35 +49,34 @@ namespace HotelMeAPI.Controllers
             return CreatedAtAction(nameof(GetUserBooking), new { id = booking.Id }, booking);
         }
 
+        // POST /api/bookings/check-in
         [HttpPost("check-in")]
         public async Task<IActionResult> CheckIn()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            var userId = Request.Headers["X-User-Id"].ToString() ?? "demo-user";
 
-            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.UserId == user.Id && b.Status == "Pending");
+            var booking = await _context.Bookings
+                .FirstOrDefaultAsync(b => b.UserId == userId && b.Status == "Pending");
             if (booking == null) return NotFound();
 
             booking.Status = "CheckedIn";
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
+        // POST /api/bookings/check-out
         [HttpPost("check-out")]
         public async Task<IActionResult> CheckOut()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return Unauthorized();
+            var userId = Request.Headers["X-User-Id"].ToString() ?? "demo-user";
 
-            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.UserId == user.Id && b.Status == "CheckedIn");
+            var booking = await _context.Bookings
+                .FirstOrDefaultAsync(b => b.UserId == userId && b.Status == "CheckedIn");
             if (booking == null) return NotFound();
 
             booking.Status = "CheckedOut";
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
     }
-
 }

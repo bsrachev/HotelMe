@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using HotelMe.Shared.Models;
+using System.Net.Http.Json;
 
 public class ChatService
 {
@@ -11,10 +12,18 @@ public class ChatService
         _authService = authService;
     }
 
+    public async Task<List<ChatMessage>> GetAllMessages()
+    {
+        var client = await _authService.GetAuthorizedHttpClient();
+        var all = await client.GetFromJsonAsync<List<ChatMessage>>("api/chat/all");
+        return all ?? new List<ChatMessage>();
+    }
+
+
     public async Task<bool> SendMessage(string message)
     {
-        var httpClient = await _authService.GetAuthorizedHttpClient();
-        var response = await httpClient.PostAsJsonAsync("api/chat/send", message);
+        var client = await _authService.GetAuthorizedHttpClient();
+        var response = await client.PostAsJsonAsync("api/chat/send", message);
         return response.IsSuccessStatusCode;
     }
 }

@@ -1,0 +1,81 @@
+﻿@page "/chatlog"
+@using HotelMe.Shared.Models
+@inject ChatService ChatService
+@inject AuthService AuthService
+
+<h3>💬 All Chat Messages</h3>
+
+@if (!isReady)
+{
+    <p>⏳ Loading…</p>
+}
+else if (!isAdmin)
+{
+    <p class="text-danger">⛔ Достъп само за администратори.</p>
+}
+else if (messages.Count == 0)
+{
+    <p class="text-muted">Няма изпратени съобщения.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>User ID</th>
+                <th>Message</th>
+                <th>Sent At</th>
+                <th>Checked-In?</th>
+                <th>Room</th>           <!-- NEW column -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in messages)
+            {
+                <tr>
+                    <td>@m.Id</td>
+                    <td>@m.UserId</td>
+                    <td>@m.Message</td>
+                    <td>@m.SentAt.ToLocalTime().ToString("g")</td>
+                    <td>
+                        @if (m.HasActiveBooking)
+                        {
+                            <span class="text-success">Yes</span>
+                        }
+                        else
+                        {
+                            <span class="text-secondary">No</span>
+                        }
+                    </td>
+                    <td>
+                        @if (m.HasActiveBooking && m.RoomNumber != null)
+                        {
+                            @m.RoomNumber
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool isAdmin, isReady;
+    private List<ChatMessage> messages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await AuthService.GetUserRole();
+        isAdmin = role == "Admin";
+
+        if (isAdmin)
+            messages = await ChatService.GetAllMessages();
+
+        isReady = true;
+    }
+}

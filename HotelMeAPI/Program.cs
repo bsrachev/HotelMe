@@ -103,8 +103,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowBlazorClient");
 
-app.UseAuthentication();
-app.UseAuthorization();
+/*app.UseAuthentication();
+app.UseAuthorization();*/
 
 app.MapControllers();
 

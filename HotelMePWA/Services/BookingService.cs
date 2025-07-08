@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using HotelMe.Shared.Models;
 
 public class BookingService
@@ -18,13 +17,17 @@ public class BookingService
     {
         var client = await _authService.GetAuthorizedHttpClient();
         var response = await client.GetAsync("api/bookings/user");
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            // simply return null – caller can detect and redirect
+        if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.NotFound)
             return null;
-        }
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<Booking>();
+    }
+
+    public async Task<bool> CreateBooking(BookingRequest req)
+    {
+        var client = await _authService.GetAuthorizedHttpClient();
+        var response = await client.PostAsJsonAsync("api/bookings", req);
+        return response.IsSuccessStatusCode;
     }
 
     public async Task<bool> CheckIn()
@@ -39,12 +42,5 @@ public class BookingService
         var client = await _authService.GetAuthorizedHttpClient();
         var res = await client.PostAsync("api/bookings/check-out", null);
         return res.IsSuccessStatusCode;
-    }
-
-    public async Task<bool> CreateBooking(BookingRequest req)
-    {
-        var client = await _authService.GetAuthorizedHttpClient();
-        var response = await client.PostAsJsonAsync("api/bookings", req);
-        return response.IsSuccessStatusCode;
     }
 }

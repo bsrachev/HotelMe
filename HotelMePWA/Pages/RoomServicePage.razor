@@ -1,17 +1,24 @@
 ﻿@page "/roomservice"
 @using HotelMe.Shared.Models
 @inject RoomService RoomService
-@inject AuthService AuthService
+@inject BookingService BookingService
 @inject NavigationManager Nav
 
 <h3>🍽️ Room Service Menu</h3>
 
-@if (!isInitialized)
+@if (!isInit)
 {
     <p>⏳ Loading…</p>
 }
+else if (booking == null || booking.Status != "CheckedIn")
+{
+    <p class="text-danger">
+        ⛔ You must have an active room (Checked-In) to order.
+    </p>
+}
 else
 {
+    <p><em>Room: @booking.RoomNumber</em></p>
     <div class="row">
         @foreach (var item in menu)
         {
@@ -20,9 +27,7 @@ else
                     <h5>@item.Name</h5>
                     <p>@item.Description</p>
                     <p><strong>Price:</strong> $@item.Price</p>
-                    <button class="btn btn-sm btn-primary"
-                            @onclick="() => AddToCart(item)"
-                            disabled="@( !isAuthenticated )">
+                    <button class="btn btn-sm btn-primary" @onclick="() => AddToCart(item)">
                         🛒 Add to cart
                     </button>
                 </div>
@@ -30,13 +35,7 @@ else
         }
     </div>
 
-    @if (!isAuthenticated)
-    {
-        <p class="text-danger mt-3">
-            ⛔ You must <a @onclick="GoLogin">log in</a> before you can order.
-        </p>
-    }
-    else if (cart.Any())
+    @if (cart.Any())
     {
         <hr />
         <h5>Your Cart (@cart.Count):</h5>
@@ -45,25 +44,13 @@ else
             {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     @c.Name
-                    <span>
-                        <button class="btn btn-sm btn-danger"
-                                @onclick="() => RemoveFromCart(c)">
-                            ✖
-                        </button>
-                    </span>
+                    <button class="btn btn-sm btn-danger" @onclick="() => RemoveFromCart(c)">✖</button>
                 </li>
             }
         </ul>
 
         <button class="btn btn-success" @onclick="SubmitOrder" disabled="@isSubmitting">
-            @if (isSubmitting)
-            {
-                <span>⏳ Submitting…</span>
-            }
-            else
-            {
-                <span>✅ Submit Order</span>
-            }
+            @(isSubmitting ? "⏳ Submitting…" : "✅ Submit Order")
         </button>
 
         @if (!string.IsNullOrEmpty(feedback))
@@ -74,59 +61,46 @@ else
 }
 
 @code {
+    private Booking? booking;
     private List<MenuItem> menu = new();
     private List<MenuItem> cart = new();
-    private bool isLoading, isInitialized, isAuthenticated, isSubmitting;
+    private bool isInit, isSubmitting;
     private string feedback = "";
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Check login status
-        isAuthenticated = await AuthService.IsUserAuthenticated();
-
-        // 2. Load menu regardless of auth (optionally you could hide it until login)
+        // 1) load booking
+        booking = await BookingService.GetCurrentBooking();
+        // 2) load menu
         menu = await RoomService.GetMenu();
-        isLoading = false;
-        isInitialized = true;
+        isInit = true;
     }
 
-    void AddToCart(MenuItem item)
-    {
-        if (isAuthenticated)
-            cart.Add(item);
-    }
-
-    void RemoveFromCart(MenuItem item)
-    {
-        cart.Remove(item);
-    }
-
-    void GoLogin() => Nav.NavigateTo("/login");
+    void AddToCart(MenuItem item) => cart.Add(item);
+    void RemoveFromCart(MenuItem item) => cart.Remove(item);
 
     async Task SubmitOrder()
     {
-        if (!isAuthenticated)
+        if (booking == null || booking.Status != "CheckedIn")
         {
-            feedback = "⛔ Please log in first.";
+            feedback = "⛔ You must be checked in to place an order.";
             return;
         }
 
         isSubmitting = true;
         feedback = "";
 
-        var ids = cart.Select(x => x.Id);
-        var ok = await RoomService.PlaceOrder(ids);
+        var ok = await RoomService.PlaceOrder(cart.Select(x => x.Id));
+        isSubmitting = false;
 
         if (ok)
         {
-            feedback = "🎉 Your order has been placed!";
-            cart.Clear();
+            // On success, navigate to /orders
+            Nav.NavigateTo("/orders");
         }
         else
         {
             feedback = "❌ Failed to place order.";
         }
-
-        isSubmitting = false;
     }
 }
