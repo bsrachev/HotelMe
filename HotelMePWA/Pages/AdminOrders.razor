@@ -1,0 +1,81 @@
+﻿@page "/admin/orders"
+@using HotelMe.Shared.Models
+@inject OrderService OrderService
+@inject AuthService AuthService
+
+<h3>📦 All Orders (Admin)</h3>
+
+@if (!isReady)
+{
+    <p>⏳ Loading…</p>
+}
+else if (!isAdmin)
+{
+    <p class="text-danger">⛔ Only admins can view this.</p>
+}
+else if (orders.Count == 0)
+{
+    <p class="text-muted">No orders yet.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Room</th>
+                <th>Items</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in orders)
+            {
+                <tr>
+                    <td>@o.Id</td>
+                    <td>@(o.RoomNumber ?? "—")</td>
+                    <td>@o.ItemsSummary</td>
+                    <td>@o.CreatedAt.ToLocalTime().ToString("g")</td>
+                    <td>@o.Status</td>
+                    <td>
+                        @if (o.Status == "Pending")
+                        {
+                            <button class="btn btn-sm btn-success"
+                                    @onclick="() => Complete(o.Id)">
+                                Complete
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private bool isAdmin, isReady;
+    private List<Order> orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await AuthService.GetUserRole();
+        isAdmin = role == "Admin";
+
+        if (isAdmin)
+            orders = await OrderService.GetAllOrders();
+
+        isReady = true;
+    }
+
+    private async Task Complete(int id)
+    {
+        if (await OrderService.CompleteOrder(id))
+        {
+            var ord = orders.First(o => o.Id == id);
+            ord.Status = "Completed";
+            StateHasChanged();
+        }
+    }
+}

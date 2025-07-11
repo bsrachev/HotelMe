@@ -14,6 +14,20 @@ public class OrderService
         _auth = auth;
     }
 
+    public async Task<List<Order>> GetAllOrders()
+    {
+        var client = await _auth.GetAuthorizedHttpClient();
+        return await client.GetFromJsonAsync<List<Order>>("api/orders")
+               ?? new List<Order>();
+    }
+
+    public async Task<bool> CompleteOrder(int orderId)
+    {
+        var client = await _auth.GetAuthorizedHttpClient();
+        var res = await client.PostAsync($"api/orders/{orderId}/complete", null);
+        return res.IsSuccessStatusCode;
+    }
+
     public async Task<bool> PlaceOrder(IEnumerable<int> itemIds)
     {
         var client = await _auth.GetAuthorizedHttpClient();

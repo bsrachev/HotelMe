@@ -25,49 +25,57 @@
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 👤 Потребители
             </NavLink>
         </div> *@
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/roomservice">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🍽️ Room Service
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/orders">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🍴 My Orders
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/book-room">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 📅 Book Room
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/checkin">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🏨 Check-in/Check-out
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/chat">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 💬 Chat with Reception
-            </NavLink>
-        </div>
+        @if (userRole == "Admin")
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/admin/users">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> ⚙️ Users
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/admin/chatlog">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> ⚙️ Chat Log
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/admin/orders">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> ⚙️ Orders
+                </NavLink>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/chat">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 💬 Chat with Reception
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/book-room">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 📅 Book Room
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/checkin">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🏨 Check-in/Check-out
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/roomservice">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🍽️ Room Service
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="/orders">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🍴 My Orders
+                </NavLink>
+            </div>
+        }
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="/logout">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> 🚪 Изход
             </NavLink>
         </div>
-        @if (userRole == "Admin")
-        {
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/admin">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> ⚙️ Админ
-                </NavLink>
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="/chatlog">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> ⚙️ Chat Log
-                </NavLink>
-            </div>
-        }
     }
     else
     {

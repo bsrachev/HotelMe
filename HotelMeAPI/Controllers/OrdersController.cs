@@ -1,5 +1,6 @@
 ﻿using HotelMe.Shared.Models;
 using HotelMeAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,8 +16,36 @@ namespace HotelMeAPI.Controllers
             _db = db;
         }
 
-        [HttpGet("ping")]
-        public IActionResult Ping() => Ok("pong");
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Order>>> GetAllOrders()
+        {
+            var list = await _db.Orders
+                .Include(o => o.Items)
+                .Select(o => new Order
+                {
+                    Id = o.Id,
+                    UserId = o.UserId,
+                    CreatedAt = o.CreatedAt,
+                    Status = o.Status,
+                    Items = o.Items.ToList(),
+                    RoomNumber = _db.Bookings
+                                     .Where(b => b.UserId == o.UserId && b.Status == "CheckedIn")
+                                     .Select(b => b.RoomNumber)
+                                     .FirstOrDefault(),
+                    ItemsSummary = string.Join(", ", 
+                        o.Items
+                         .GroupBy(i => i.MenuItemName)
+                         .Select(g =>
+                            g.Count() > 1
+                                ? $"{g.Key} ({g.Count()})"
+                                : g.Key
+                         )
+                    )
+                })
+                .OrderByDescending(o => o.Id)
+                .ToListAsync();
+            return Ok(list);
+        }
 
         // POST /api/orders
         [HttpPost]
@@ -78,6 +107,16 @@ namespace HotelMeAPI.Controllers
                 .Include(o => o.Items)
                 .FirstOrDefaultAsync(o => o.Id == id);
             return order == null ? NotFound() : Ok(order);
+        }
+
+        [HttpPost("{id}/complete")]
+        public async Task<IActionResult> CompleteOrder(int id)
+        {
+            var o = await _db.Orders.FindAsync(id);
+            if (o == null) return NotFound();
+            o.Status = "Completed";
+            await _db.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
