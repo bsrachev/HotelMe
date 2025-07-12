@@ -1,0 +1,32 @@
+﻿@page "/"
+
+<MudPaper Class="pa-4">
+    <MudText Typo="Typo.h3" Class="mb-2">Welcome to HotelMe!</MudText>
+    <MudText Class="mb-4">
+        Enjoy a seamless stay with online booking, digital check-in,
+        live chat with reception and convenient room service ordering.
+    </MudText>
+
+    <MudNavMenu Dense="true">
+        <MudNavLink Href="book-room"
+                    Icon="@Icons.Material.Filled.EventAvailable">
+            Book a Room
+        </MudNavLink>
+        <MudNavLink Href="checkin"
+                    Icon="@Icons.Material.Filled.Hotel">
+            Digital Check-in
+        </MudNavLink>
+        <MudNavLink Href="chat"
+                    Icon="@Icons.Material.Filled.Chat">
+            Chat with Reception
+        </MudNavLink>
+        <MudNavLink Href="roomservice"
+                    Icon="@Icons.Material.Filled.Restaurant">
+            Order Room Service
+        </MudNavLink>
+        <MudNavLink Href="orders"
+                    Icon="@Icons.Material.Filled.ShoppingCart">
+            View My Orders
+        </MudNavLink>
+    </MudNavMenu>
+</MudPaper>

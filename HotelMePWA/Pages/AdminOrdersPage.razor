@@ -1,0 +1,91 @@
+﻿@page "/admin/orders"
+@using HotelMe.Shared.Models
+@inject OrderService OrderService
+@inject AuthService AuthService
+
+<MudText Typo="Typo.h5" Class="mb-4">📦 All Orders (Admin)</MudText>
+
+@if (!isReady)
+{
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+}
+else if (!isAdmin)
+{
+    <MudAlert Severity="Severity.Error">⛔ Достъп само за администратори.</MudAlert>
+}
+else if (orders.Count == 0)
+{
+    <MudText Color="Color.Secondary">Няма поръчки.</MudText>
+}
+else
+{
+    <MudExpansionPanels Elevation="1">
+        @foreach (var o in orders)
+        {
+            <MudExpansionPanel Text="@($"Order #{o.Id} — {o.CreatedAt.ToLocalTime():g} — {o.Status}")">
+                <MudStack Spacing="1">
+                    <MudText><strong>User ID:</strong> @o.UserId</MudText>
+                    <MudText><strong>Room:</strong> @(o.RoomNumber ?? "—")</MudText>
+                    <MudText><strong>Items:</strong></MudText>
+
+                    @{
+                        // group identical items
+                        var groupedItems = o.Items
+                        .GroupBy(i => new { i.MenuItemName, i.Price })
+                        .Select(g => new
+                        {
+                            Name = g.Key.MenuItemName,
+                            Qty = g.Sum(x => x.Quantity),
+                            Total = g.Sum(x => x.Quantity * x.Price)
+                        })
+                        .ToList();
+                    }
+
+                    <ul class="mud-list">
+                        @foreach (var gi in groupedItems)
+                        {
+                            <li class="mud-list-item">
+                                @gi.Name × @gi.Qty — $@gi.Total.ToString("F2")
+                            </li>
+                        }
+                    </ul>
+
+                    @if (o.Status == "Pending")
+                    {
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => Complete(o.Id))">
+                            Complete
+                        </MudButton>
+                    }
+                </MudStack>
+            </MudExpansionPanel>
+        }
+    </MudExpansionPanels>
+}
+
+@code {
+    private bool isAdmin, isReady;
+    private List<Order> orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await AuthService.GetUserRole();
+        isAdmin = role == "Admin";
+
+        if (isAdmin)
+            orders = await OrderService.GetAllOrders();
+
+        isReady = true;
+    }
+
+    private async Task Complete(int id)
+    {
+        if (await OrderService.CompleteOrder(id))
+        {
+            var ord = orders.First(o => o.Id == id);
+            ord.Status = "Completed";
+            StateHasChanged();
+        }
+    }
+}

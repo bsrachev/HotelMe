@@ -13,6 +13,9 @@
 
     <!-- Top App Bar -->
     <MudAppBar Elevation="4">
+        <MudHidden Breakpoint="Breakpoint.MdAndUp">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleDrawer" />
+        </MudHidden>
         <MudText Typo="Typo.h6">HotelMe</MudText>
         <MudSpacer />
 
@@ -30,9 +33,9 @@
         }
     </MudAppBar>
 
-    <!-- Permanent Drawer -->
-    <MudDrawer Variant="DrawerVariant.Persistent"
-               Open="true"
+    <!-- Navigation Drawer -->
+    <MudDrawer Variant="DrawerVariant.Responsive"
+               @bind-Open="_drawerOpen"
                Elevation="1"
                ClipMode="DrawerClipMode.Never">
         <MudNavMenu>
@@ -74,12 +77,14 @@
 @code {
     private bool isAuthenticated;
     private string userRole = "";
+    private bool _drawerOpen;
 
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsUserAuthenticated();
         userRole = await AuthService.GetUserRole();
         AuthService.OnAuthStateChanged += UpdateAuthState;
+        _drawerOpen = true;
     }
 
     private async void UpdateAuthState()
@@ -91,6 +96,8 @@
 
     private void GoLogin() => Nav.NavigateTo("/login");
     private void Logout() => Nav.NavigateTo("/logout");
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
 
     public void Dispose() => AuthService.OnAuthStateChanged -= UpdateAuthState;
 }
