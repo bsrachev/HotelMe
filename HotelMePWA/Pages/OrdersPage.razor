@@ -2,37 +2,35 @@
 @inject OrderService OrderService
 @inject AuthService AuthService
 
-<h3>📦 My Orders</h3>
+<MudText Typo="Typo.h5" Class="mb-2">📦 My Orders</MudText>
 
 @if (!isReady)
 {
-    <p>⏳ Loading…</p>
+    <MudProgressCircular Indeterminate="true" Class="my-4" />
 }
 else if (!isAuth)
 {
-    <p class="text-danger">⛔ Please <a href="/login">log in</a>.</p>
+    <MudText Color="Color.Error">⛔ Please <MudLink Href="/login">log in</MudLink>.</MudText>
 }
 else if (orders.Count == 0)
 {
-    <p class="text-muted">You have no orders yet.</p>
+    <MudText Color="Color.Secondary">You have no orders yet.</MudText>
 }
 else
 {
     @foreach (var o in orders)
     {
-        <div class="card mb-3">
-            <div class="card-header">
-                Order #@o.Id — @o.CreatedAt.ToLocalTime().ToString("g") — <em>@o.Status</em>
-            </div>
-            <ul class="list-group list-group-flush">
-                @foreach (var i in o.Items)
-                {
-                    <li class="list-group-item">
-                        @i.MenuItemName × @i.Quantity — $@i.Price
-                    </li>
-                }
-            </ul>
-        </div>
+        <MudPaper Class="mb-3" Elevation="1">
+            <MudStack Spacing="1" Class="p-2">
+                <MudText Typo="Typo.subtitle1">Order #@o.Id — @o.CreatedAt.ToLocalTime().ToString("g") — <em>@o.Status</em></MudText>
+                <MudList Dense="true">
+                    @foreach (var i in o.Items)
+                    {
+                        <MudListItem>@i.MenuItemName × @i.Quantity — $@i.Price</MudListItem>
+                    }
+                </MudList>
+            </MudStack>
+        </MudPaper>
     }
 }
 

@@ -4,44 +4,37 @@
 
 @if (!isAuthenticated || userRole != "Admin")
 {
-    <p class="text-danger">⛔ Трябва да сте влезли като администратор!</p>
+    <MudText Color="Color.Error">⛔ Трябва да сте влезли като администратор!</MudText>
 }
 else if (isLoading)
 {
-    <p>⏳ Зареждане...</p>
+    <MudProgressCircular Indeterminate="true" Class="my-4" />
 }
 else
 {
-    <h3>👑 Администраторски панел</h3>
+    <MudText Typo="Typo.h5" Class="mb-2">👑 Администраторски панел</MudText>
 
     @if (users != null && users.Count > 0)
     {
-        <table class="table mt-3">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Потребителско име</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in users)
-                {
-                    <tr>
-                        <td>@user.Id</td>
-                        <td>@user.UserName</td> <!-- ApplicationUser uses UserName instead of Name -->
-                        <td>@user.Email</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <MudTable Items="users" Dense="true" Class="mt-3">
+            <HeaderContent>
+                <MudTh>#</MudTh>
+                <MudTh>Потребителско име</MudTh>
+                <MudTh>Email</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="#">@context.Id</MudTd>
+                <MudTd DataLabel="Потребителско име">@context.UserName</MudTd>
+                <MudTd DataLabel="Email">@context.Email</MudTd>
+            </RowTemplate>
+        </MudTable>
     }
     else
     {
-        <p class="text-muted">Няма налични потребители.</p>
+        <MudText Color="Color.Secondary">Няма налични потребители.</MudText>
     }
 
-    <button class="btn btn-primary" @onclick="LoadUsers">🔄 Презареди потребители</button>
+    <MudButton Color="Color.Primary" OnClick="LoadUsers" Class="mt-2">🔄 Презареди потребители</MudButton>
 }
 
 @code {

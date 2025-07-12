@@ -1,19 +1,19 @@
 ﻿@page "/chat"
 @inject ChatService ChatService
 
-<h3>💬 Live Chat with Reception</h3>
+<MudText Typo="Typo.h5" Class="mb-2">💬 Live Chat with Reception</MudText>
 
 @if (isSending)
 {
-    <p>⏳ Sending message...</p>
+    <MudProgressCircular Indeterminate="true" Class="my-2" />
 }
 
-<input type="text" class="form-control" @bind="messageText" placeholder="Type your message..." />
-<button class="btn btn-primary mt-2" @onclick="SendMessage">📩 Send</button>
+<MudTextField @bind-Value="messageText" Placeholder="Type your message..." Class="mb-2" Immediate="true" />
+<MudButton Color="Color.Primary" OnClick="SendMessage" Disabled="@string.IsNullOrWhiteSpace(messageText)">📩 Send</MudButton>
 
 @if (!string.IsNullOrEmpty(feedbackMessage))
 {
-    <p class="text-success">@feedbackMessage</p>
+    <MudText Color="Color.Success" Class="mt-2">@feedbackMessage</MudText>
 }
 
 @code {

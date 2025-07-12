@@ -2,10 +2,10 @@
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 
-<h3>Вход</h3>
-<input @bind="email" placeholder="Email" />
-<input @bind="password" type="password" placeholder="Парола" />
-<button @onclick="Login">Вход</button>
+<MudText Typo="Typo.h5" Class="mb-2">Вход</MudText>
+<MudTextField @bind-Value="email" Label="Email" Class="mb-2" />
+<MudTextField @bind-Value="password" Label="Парола" InputType="InputType.Password" Class="mb-2" />
+<MudButton Color="Color.Primary" OnClick="Login">Вход</MudButton>
 
 @code {
     private string email;

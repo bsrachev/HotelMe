@@ -3,64 +3,43 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<h3>📅 Make a Booking</h3>
+<MudText Typo="Typo.h5" Class="mb-2">📅 Make a Booking</MudText>
 
 @if (!isReady)
 {
-    <p>⏳ Checking authentication…</p>
+    <MudProgressCircular Indeterminate="true" Class="my-4" />
 }
 else if (!isAuthenticated)
 {
-    <p class="text-danger">
-        ⛔ You must <a @onclick="GoLogin">log in</a> first.
-    </p>
+    <MudText Color="Color.Error">
+        ⛔ You must <MudLink Href="/login">log in</MudLink> first.
+    </MudText>
 }
 else if (existingBooking != null)
 {
-    <p class="text-success">
+    <MudAlert Severity="Severity.Success" Variant="Variant.Filled">
         ✅ You already have a booking for room <strong>@existingBooking.RoomNumber</strong>
         from <strong>@existingBooking.CheckInDate.ToShortDateString()</strong>
         to <strong>@existingBooking.CheckOutDate.ToShortDateString()</strong>.
-    </p>
-    <p>
-        <a class="btn btn-secondary" href="/checkin">Go to Check-in Page</a>
-    </p>
+    </MudAlert>
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" Class="mt-2" Href="/checkin">Go to Check-in Page</MudButton>
 }
 else
 {
-    <EditForm Model="request" OnValidSubmit="SubmitBooking">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    <MudForm Model="request" @ref="form" OnValidSubmit="SubmitBooking">
+        <MudTextField @bind-Value="request.RoomNumber" Label="Room Number" Class="mb-3" />
+        <MudDatePicker @bind-Date="request.CheckInDate" Label="Check‑in Date" Class="mb-3" />
+        <MudDatePicker @bind-Date="request.CheckOutDate" Label="Check‑out Date" Class="mb-3" />
 
-        <div class="mb-3">
-            <label>Room Number</label>
-            <InputText class="form-control" @bind-Value="request.RoomNumber" />
-        </div>
-        <div class="mb-3">
-            <label>Check‑in Date</label>
-            <InputDate @bind-Value="request.CheckInDate" class="form-control" />
-        </div>
-        <div class="mb-3">
-            <label>Check‑out Date</label>
-            <InputDate @bind-Value="request.CheckOutDate" class="form-control" />
-        </div>
-
-        <button class="btn btn-primary" disabled="@isSubmitting">
-            @if (isSubmitting)
-            {
-                <span>⏳ Booking…</span>
-            }
-            else
-            {
-                <span>✅ Book Now</span>
-            }
-        </button>
+        <MudButton Color="Color.Primary" Disabled="@isSubmitting" Type="Submit">
+            @(isSubmitting ? (MarkupString)"⏳ Booking…" : (MarkupString)"✅ Book Now")
+        </MudButton>
 
         @if (!string.IsNullOrEmpty(feedback))
         {
-            <p class="mt-2">@feedback</p>
+            <MudText Class="mt-2">@feedback</MudText>
         }
-    </EditForm>
+    </MudForm>
 }
 
 @code {
@@ -72,6 +51,7 @@ else
     private bool isAuthenticated;
     private bool isReady;
     private bool isSubmitting;
+    private MudForm? form;
     private string? feedback;
     private Booking? existingBooking;
 
