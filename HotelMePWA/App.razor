@@ -1,25 +1,25 @@
-﻿@inject AuthService AuthService
+﻿@using MudBlazor
+@using MudBlazor.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthService AuthService
 
 <CascadingAuthenticationState>
-    <AuthorizeRouteView DefaultLayout="typeof(MainLayout)" />
+    <MudThemeProvider>
+        <MudDialogProvider>
+            <MudSnackbarProvider>
+                <Router AppAssembly="@typeof(Program).Assembly">
+                    <Found Context="routeData">
+                        <AuthorizeRouteView RouteData="@routeData"
+                                            DefaultLayout="@typeof(MainLayout)" />
+                        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+                    </Found>
+                    <NotFound>
+                        <LayoutView Layout="@typeof(MainLayout)">
+                            <p role="alert">Sorry, there’s nothing at this address.</p>
+                        </LayoutView>
+                    </NotFound>
+                </Router>
+            </MudSnackbarProvider>
+        </MudDialogProvider>
+    </MudThemeProvider>
 </CascadingAuthenticationState>
-
-@code {
-    protected override async Task OnInitializedAsync()
-    {
-        await AuthService.IsUserAuthenticated();
-    }
-}
-
-<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
