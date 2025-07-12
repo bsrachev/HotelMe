@@ -1,43 +1,41 @@
 ﻿@page "/chat"
 @inject ChatService ChatService
 
-<h3>💬 Live Chat with Reception</h3>
+<MudText Typo="Typo.h5" Class="mb-4">💬 Live Chat with Reception</MudText>
 
-@if (isSending)
-{
-    <p>⏳ Sending message...</p>
-}
+<MudTextField @bind-Value="messageText"
+              Label="Your Message"
+              Variant="Variant.Outlined"
+              FullWidth="true" />
 
-<input type="text" class="form-control" @bind="messageText" placeholder="Type your message..." />
-<button class="btn btn-primary mt-2" @onclick="SendMessage">📩 Send</button>
+<MudButton Variant="Variant.Filled"
+           Disabled="isSending"
+           OnClick="SendMessage"
+           Class="mt-2">
+    @(isSending ? "⏳ Sending…" : "📩 Send")
+</MudButton>
 
 @if (!string.IsNullOrEmpty(feedbackMessage))
 {
-    <p class="text-success">@feedbackMessage</p>
+    <MudAlert Severity="Severity.Success" Class="mt-2">
+        @feedbackMessage
+    </MudAlert>
 }
 
 @code {
     private string messageText = "";
-    private bool isSending = false;
+    private bool isSending;
     private string feedbackMessage = "";
 
     private async Task SendMessage()
     {
-        if (!string.IsNullOrEmpty(messageText))
-        {
-            isSending = true;
-            var success = await ChatService.SendMessage(messageText);
-            isSending = false;
+        if (string.IsNullOrWhiteSpace(messageText))
+            return;
 
-            if (success)
-            {
-                feedbackMessage = "✅ Message sent!";
-                messageText = "";
-            }
-            else
-            {
-                feedbackMessage = "❌ Failed to send message.";
-            }
-        }
+        isSending = true;
+        var ok = await ChatService.SendMessage(messageText);
+        isSending = false;
+        feedbackMessage = ok ? "✅ Message sent!" : "❌ Failed to send message.";
+        if (ok) messageText = "";
     }
 }

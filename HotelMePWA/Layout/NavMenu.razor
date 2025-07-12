@@ -4,7 +4,7 @@
 <MudNavMenu>
     <MudNavLink Href=""
                 Icon="@Icons.Material.Filled.Home">
-        🏠 Начало
+        Начало
     </MudNavLink>
 
     @if (isAuthenticated)
@@ -13,7 +13,7 @@
         {
             <MudNavLink Href="admin/users"
                         Icon="@Icons.Material.Filled.AdminPanelSettings">
-                ⚙️ Админ: Потребители
+                Админ: Потребители
             </MudNavLink>
             <!-- etc… -->
         }
@@ -21,25 +21,25 @@
         {
             <MudNavLink Href="chat"
                         Icon="@Icons.Material.Filled.Chat">
-                💬 Chat с рецепция
+                Chat с рецепция
             </MudNavLink>
             <!-- etc… -->
         }
 
         <MudNavLink OnClick="Logout"
                     Icon="@Icons.Material.Filled.ExitToApp">
-            🚪 Изход
+            Изход
         </MudNavLink>
     }
     else
     {
         <MudNavLink Href="login"
                     Icon="@Icons.Material.Filled.Login">
-            🔑 Вход
+            Вход
         </MudNavLink>
         <MudNavLink Href="register"
                     Icon="@Icons.Material.Filled.PersonAdd">
-            🔐 Регистрация
+            Регистрация
         </MudNavLink>
     }
 </MudNavMenu>

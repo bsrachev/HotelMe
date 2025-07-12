@@ -1,39 +1,41 @@
 ﻿@page "/orders"
+@using HotelMe.Shared.Models
 @inject OrderService OrderService
 @inject AuthService AuthService
 
-<h3>📦 My Orders</h3>
+<MudText Typo="Typo.h5" Class="mb-4">📦 My Orders</MudText>
 
 @if (!isReady)
 {
-    <p>⏳ Loading…</p>
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
 }
 else if (!isAuth)
 {
-    <p class="text-danger">⛔ Please <a href="/login">log in</a>.</p>
+    <MudAlert Severity="Severity.Error">
+        ⛔ Please <MudLink Href="login">log in</MudLink>.
+    </MudAlert>
 }
 else if (orders.Count == 0)
 {
-    <p class="text-muted">You have no orders yet.</p>
+    <MudText Color="Color.Secondary">You have no orders yet.</MudText>
 }
 else
 {
-    @foreach (var o in orders)
-    {
-        <div class="card mb-3">
-            <div class="card-header">
-                Order #@o.Id — @o.CreatedAt.ToLocalTime().ToString("g") — <em>@o.Status</em>
-            </div>
-            <ul class="list-group list-group-flush">
-                @foreach (var i in o.Items)
-                {
-                    <li class="list-group-item">
-                        @i.MenuItemName × @i.Quantity — $@i.Price
-                    </li>
-                }
-            </ul>
-        </div>
-    }
+    <MudExpansionPanels Elevation="1">
+        @foreach (var o in orders)
+        {
+            <MudExpansionPanel Text="@($"Order #{o.Id} – {o.CreatedAt.ToLocalTime():g} – {o.Status}")">
+                <ul class="mud-list">
+                    @foreach (var i in o.Items)
+                    {
+                        <li class="mud-list-item">
+                            @i.MenuItemName × @i.Quantity — $@i.Price
+                        </li>
+                    }
+                </ul>
+            </MudExpansionPanel>
+        }
+    </MudExpansionPanels>
 }
 
 @code {
@@ -44,9 +46,7 @@ else
     {
         isAuth = await AuthService.IsUserAuthenticated();
         if (isAuth)
-        {
             orders = await OrderService.GetMyOrders();
-        }
         isReady = true;
     }
 }

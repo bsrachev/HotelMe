@@ -3,68 +3,69 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<h3>🏨 Digital Check‑in</h3>
+<MudText Typo="Typo.h5" Class="mb-4">🏨 Digital Check-in</MudText>
 
 @if (!isInitialized)
 {
-    <p>⏳ Loading…</p>
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
 }
 else if (!isAuthenticated)
 {
-    <p class="text-danger">⛔ You need to <a @onclick="GoLogin">log in</a> as a guest first.</p>
+    <MudAlert Severity="Severity.Error">
+        ⛔ You need to <MudLink Href="login">log in</MudLink> first.
+    </MudAlert>
 }
 else if (booking == null)
 {
-    <p class="text-muted">No active booking found.</p>
+    <MudText Color="Color.Secondary">No active booking found.</MudText>
 }
 else
 {
-    <p><strong>Room:</strong> @booking.RoomNumber</p>
-    <p><strong>Check‑in Date:</strong> @booking.CheckInDate</p>
-    <p><strong>Check‑out Date:</strong> @booking.CheckOutDate</p>
-    <p><strong>Status:</strong> @booking.Status</p>
-
-    @if (booking.Status == "Pending")
-    {
-        <button class="btn btn-success" @onclick="PerformCheckIn">✅ Check‑in</button>
-    }
-    else if (booking.Status == "CheckedIn")
-    {
-        <button class="btn btn-danger" @onclick="PerformCheckOut">🚪 Check‑out</button>
-    }
+    <MudCard Class="pa-4">
+        <MudText><strong>Room:</strong> @booking.RoomNumber</MudText>
+        <MudText><strong>Check-in:</strong> @booking.CheckInDate:yyyy-MM-dd</MudText>
+        <MudText><strong>Check-out:</strong> @booking.CheckOutDate:yyyy-MM-dd</MudText>
+        <MudText><strong>Status:</strong> @booking.Status</MudText>
+        @if (booking.Status == "Pending")
+        {
+            <MudButton Color="Color.Success"
+                       OnClick="PerformCheckIn"
+                       Class="mt-4">
+                ✅ Check-in
+            </MudButton>
+        }
+        else if (booking.Status == "CheckedIn")
+        {
+            <MudButton Color="Color.Error"
+                       OnClick="PerformCheckOut"
+                       Class="mt-4">
+                🚪 Check-out
+            </MudButton>
+        }
+    </MudCard>
 }
 
 @code {
-    private Booking? booking;
-    private bool isAuthenticated;
-    private bool isInitialized;
+    private Booking booking;
+    private bool isAuthenticated, isInitialized;
 
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsUserAuthenticated();
-
         if (isAuthenticated)
-        {
             booking = await BookingService.GetCurrentBooking();
-        }
-
         isInitialized = true;
-    }
-
-    private void GoLogin()
-    {
-        Nav.NavigateTo("/login");
     }
 
     private async Task PerformCheckIn()
     {
         if (await BookingService.CheckIn())
-            booking!.Status = "CheckedIn";
+            booking.Status = "CheckedIn";
     }
 
     private async Task PerformCheckOut()
     {
         if (await BookingService.CheckOut())
-            booking!.Status = "CheckedOut";
+            booking.Status = "CheckedOut";
     }
 }

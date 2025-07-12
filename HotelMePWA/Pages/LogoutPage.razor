@@ -1,13 +1,14 @@
 ﻿@page "/logout"
 @inject AuthService AuthService
-@inject NavigationManager Navigation
+@inject NavigationManager Nav
 
-<h3>Излизане...</h3>
+<MudProgressCircular Indeterminate="true" Class="ma-4" />
+<MudText>Излизане...</MudText>
 
 @code {
     protected override async Task OnInitializedAsync()
     {
         await AuthService.Logout();
-        Navigation.NavigateTo("/");
+        Nav.NavigateTo("/");
     }
 }

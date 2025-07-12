@@ -3,55 +3,52 @@
 @inject OrderService OrderService
 @inject AuthService AuthService
 
-<h3>📦 All Orders (Admin)</h3>
+<MudText Typo="Typo.h5" Class="mb-4">📦 All Orders (Admin)</MudText>
 
 @if (!isReady)
 {
-    <p>⏳ Loading…</p>
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
 }
 else if (!isAdmin)
 {
-    <p class="text-danger">⛔ Only admins can view this.</p>
+    <MudAlert Severity="Severity.Error">⛔ Достъп само за администратори.</MudAlert>
 }
 else if (orders.Count == 0)
 {
-    <p class="text-muted">No orders yet.</p>
+    <MudText Color="Color.Secondary">Няма поръчки.</MudText>
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Room</th>
-                <th>Items</th>
-                <th>Created</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var o in orders)
-            {
-                <tr>
-                    <td>@o.Id</td>
-                    <td>@(o.RoomNumber ?? "—")</td>
-                    <td>@o.ItemsSummary</td>
-                    <td>@o.CreatedAt.ToLocalTime().ToString("g")</td>
-                    <td>@o.Status</td>
-                    <td>
-                        @if (o.Status == "Pending")
-                        {
-                            <button class="btn btn-sm btn-success"
-                                    @onclick="() => Complete(o.Id)">
-                                Complete
-                            </button>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <MudTable Items="orders" Striped="true" Hover="true">
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>User ID</MudTh>
+            <MudTh>Room</MudTh>
+            <MudTh>Items</MudTh>
+            <MudTh>Created</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">@context.Id</MudTd>
+            <MudTd DataLabel="User ID">@context.UserId</MudTd>
+            <MudTd DataLabel="Room">@((context.RoomNumber) ?? "—")</MudTd>
+            <MudTd DataLabel="Items">@string.Join(", ", context.Items.Select(i => i.MenuItemName))</MudTd>
+            <MudTd DataLabel="Created">@context.CreatedAt.ToLocalTime().ToString("g")</MudTd>
+            <MudTd DataLabel="Status">@context.Status</MudTd>
+            <MudTd DataLabel="">
+                @if (context.Status == "Pending")
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               OnClick="@(() => Complete(context.Id))">
+                        Complete
+                    </MudButton>
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
 }
 
 @code {

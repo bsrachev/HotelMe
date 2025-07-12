@@ -1,22 +1,29 @@
 ﻿@page "/login"
 @inject AuthService AuthService
-@inject NavigationManager Navigation
+@inject NavigationManager Nav
 
-<h3>Вход</h3>
-<input @bind="email" placeholder="Email" />
-<input @bind="password" type="password" placeholder="Парола" />
-<button @onclick="Login">Вход</button>
+<MudText Typo="Typo.h5" Class="mb-4">Вход</MudText>
+
+<MudTextField @bind-Value="email"
+              Label="Email"
+              FullWidth="true" />
+<MudTextField @bind-Value="password"
+              Label="Парола"
+              InputType="InputType.Password"
+              FullWidth="true" />
+
+<MudButton Variant="Variant.Filled"
+           OnClick="Login"
+           Class="mt-4">
+    Вход
+</MudButton>
 
 @code {
-    private string email;
-    private string password;
+    private string email, password;
 
     private async Task Login()
     {
-        var success = await AuthService.Login(email, password);
-        if (success)
-        {
-            Navigation.NavigateTo("/");
-        }
+        if (await AuthService.Login(email, password))
+            Nav.NavigateTo("/");
     }
 }

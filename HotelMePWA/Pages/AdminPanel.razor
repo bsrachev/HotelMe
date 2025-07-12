@@ -1,88 +1,68 @@
 ﻿@page "/admin/users"
-@inject HttpClient Http
 @inject AuthService AuthService
+@inject HttpClient Http
 
-@if (!isAuthenticated || userRole != "Admin")
+<MudText Typo="Typo.h5" Class="mb-4">👑 Администраторски панел</MudText>
+
+@if (!isReady)
 {
-    <p class="text-danger">⛔ Трябва да сте влезли като администратор!</p>
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
 }
-else if (isLoading)
+else if (!isAdmin)
 {
-    <p>⏳ Зареждане...</p>
+    <MudAlert Severity="Severity.Error">⛔ Трябва да сте влезли като администратор!</MudAlert>
+}
+else if (users.Count == 0)
+{
+    <MudText Color="Color.Secondary">Няма налични потребители.</MudText>
 }
 else
 {
-    <h3>👑 Администраторски панел</h3>
-
-    @if (users != null && users.Count > 0)
-    {
-        <table class="table mt-3">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Потребителско име</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in users)
-                {
-                    <tr>
-                        <td>@user.Id</td>
-                        <td>@user.UserName</td> <!-- ApplicationUser uses UserName instead of Name -->
-                        <td>@user.Email</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <p class="text-muted">Няма налични потребители.</p>
-    }
-
-    <button class="btn btn-primary" @onclick="LoadUsers">🔄 Презареди потребители</button>
+    <MudTable Items="users" Striped="true" Hover="true">
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>Потребителско име</MudTh>
+            <MudTh>Email</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">@context.Id</MudTd>
+            <MudTd DataLabel="UserName">@context.UserName</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+        </RowTemplate>
+    </MudTable>
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               OnClick="LoadUsers"
+               Class="mt-2">
+        🔄 Презареди потребители
+    </MudButton>
 }
 
 @code {
-    private bool isAuthenticated;
-    private string userRole;
-    private bool isLoading;
-    private List<ApplicationUser> users = new(); // Changed to ApplicationUser
+    private bool isReady;
+    private bool isAdmin;
+    private List<ApplicationUser> users = new();
 
     protected override async Task OnInitializedAsync()
     {
-        isAuthenticated = await AuthService.IsUserAuthenticated();
-        userRole = await AuthService.GetUserRole();
-        if (isAuthenticated && userRole == "Admin")
-        {
+        var role = await AuthService.GetUserRole();
+        isAdmin = role == "Admin";
+        isReady = true;
+        if (isAdmin)
             await LoadUsers();
-        }
     }
 
     private async Task LoadUsers()
     {
-        isLoading = true;
-        try
-        {
-            var httpClient = await AuthService.GetAuthorizedHttpClient();
-            users = await httpClient.GetFromJsonAsync<List<ApplicationUser>>("api/users/all-users");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌ Грешка при зареждане на потребители: {ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        var client = await AuthService.GetAuthorizedHttpClient();
+        users = await client.GetFromJsonAsync<List<ApplicationUser>>("api/users/all-users")
+               ?? new List<ApplicationUser>();
     }
 
-    // ApplicationUser model (mirroring the Identity class)
     private class ApplicationUser
     {
-        public string Id { get; set; } // In Identity, Id is usually a string
-        public string UserName { get; set; } // Username replaces Name
+        public string Id { get; set; }
+        public string UserName { get; set; }
         public string Email { get; set; }
     }
 }

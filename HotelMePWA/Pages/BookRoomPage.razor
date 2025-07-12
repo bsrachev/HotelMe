@@ -1,66 +1,67 @@
 ﻿@page "/book-room"
+@using HotelMe.Shared.Models
 @inject BookingService BookingService
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<h3>📅 Make a Booking</h3>
+<MudText Typo="Typo.h5" Class="mb-4">📅 Make a Booking</MudText>
 
 @if (!isReady)
 {
-    <p>⏳ Checking authentication…</p>
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
 }
 else if (!isAuthenticated)
 {
-    <p class="text-danger">
-        ⛔ You must <a @onclick="GoLogin">log in</a> first.
-    </p>
+    <MudAlert Severity="Severity.Error">
+        ⛔ You must <MudLink Href="login">log in</MudLink> first.
+    </MudAlert>
 }
 else if (existingBooking != null)
 {
-    <p class="text-success">
-        ✅ You already have a booking for room <strong>@existingBooking.RoomNumber</strong>
-        from <strong>@existingBooking.CheckInDate.ToShortDateString()</strong>
-        to <strong>@existingBooking.CheckOutDate.ToShortDateString()</strong>.
-    </p>
-    <p>
-        <a class="btn btn-secondary" href="/checkin">Go to Check-in Page</a>
-    </p>
+    <MudAlert Severity="Severity.Success">
+        ✅ You already have a booking for room
+        <strong>@existingBooking.RoomNumber</strong>
+        from @existingBooking.CheckInDate:yyyy-MM-dd
+        to @existingBooking.CheckOutDate:yyyy-MM-dd.
+    </MudAlert>
+    <MudButton Variant="Variant.Text" OnClick="GoCheckIn">
+        Go to Check-in Page
+    </MudButton>
 }
 else
 {
-    <EditForm Model="request" OnValidSubmit="SubmitBooking">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    <MudPaper Class="pa-4">
+        <EditForm Model="request" OnValidSubmit="SubmitBooking">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div class="mb-3">
-            <label>Room Number</label>
-            <InputText class="form-control" @bind-Value="request.RoomNumber" />
-        </div>
-        <div class="mb-3">
-            <label>Check‑in Date</label>
-            <InputDate @bind-Value="request.CheckInDate" class="form-control" />
-        </div>
-        <div class="mb-3">
-            <label>Check‑out Date</label>
-            <InputDate @bind-Value="request.CheckOutDate" class="form-control" />
-        </div>
+            <MudTextField @bind-Value="request.RoomNumber"
+                          Label="Room Number"
+                          Required="true" />
 
-        <button class="btn btn-primary" disabled="@isSubmitting">
-            @if (isSubmitting)
-            {
-                <span>⏳ Booking…</span>
-            }
-            else
-            {
-                <span>✅ Book Now</span>
-            }
-        </button>
+            <MudDatePicker T="DateTime"
+                           @bind-Value="request.CheckInDate"
+                           Label="Check-in Date"
+                           Required="true" />
+
+            <MudDatePicker T="DateTime"
+                           @bind-Value="request.CheckOutDate"
+                           Label="Check-out Date"
+                           Required="true" />
+
+            <MudButton Type="Submit"
+                       Variant="Variant.Filled"
+                       Disabled="isSubmitting"
+                       Class="mt-4">
+                @(isSubmitting ? "⏳ Booking…" : "✅ Book Now")
+            </MudButton>
+        </EditForm>
 
         @if (!string.IsNullOrEmpty(feedback))
         {
-            <p class="mt-2">@feedback</p>
+            <MudText Class="mt-2">@feedback</MudText>
         }
-    </EditForm>
+    </MudPaper>
 }
 
 @code {
@@ -69,23 +70,19 @@ else
             CheckInDate = DateTime.Today,
             CheckOutDate = DateTime.Today.AddDays(1)
         };
-    private bool isAuthenticated;
-    private bool isReady;
-    private bool isSubmitting;
-    private string? feedback;
-    private Booking? existingBooking;
+    private bool isReady, isAuthenticated, isSubmitting;
+    private string feedback = "";
+    private Booking existingBooking;
 
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsUserAuthenticated();
         if (isAuthenticated)
-        {
             existingBooking = await BookingService.GetCurrentBooking();
-        }
         isReady = true;
     }
 
-    private void GoLogin() => Nav.NavigateTo("/login");
+    private void GoCheckIn() => Nav.NavigateTo("/checkin");
 
     private async Task SubmitBooking()
     {
@@ -95,14 +92,8 @@ else
 
         if (ok)
         {
-            feedback = "🎉 Booking created! You can now check‑in on arrival.";
-            existingBooking = new Booking
-            {
-                RoomNumber = request.RoomNumber,
-                CheckInDate = request.CheckInDate,
-                CheckOutDate = request.CheckOutDate,
-                Status = "Pending"
-            };
+            feedback = "🎉 Booking created! You can now check-in on arrival.";
+            Nav.NavigateTo("/checkin");
         }
         else
         {

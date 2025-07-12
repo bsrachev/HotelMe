@@ -1,41 +1,44 @@
 ﻿@page "/register"
 @inject AuthService AuthService
-@inject NavigationManager Navigation
+@inject NavigationManager Nav
 
-<h3>Регистрация</h3>
+<MudText Typo="Typo.h5" Class="mb-4">Регистрация</MudText>
 
-<input @bind="email" placeholder="Email" />
-<input @bind="password" type="password" placeholder="Парола" />
-<input @bind="confirmPassword" type="password" placeholder="Повтори паролата" />
+<MudTextField @bind-Value="email"
+              Label="Email"
+              FullWidth="true" />
+<MudTextField @bind-Value="password"
+              Label="Парола"
+              InputType="InputType.Password"
+              FullWidth="true" />
+<MudTextField @bind-Value="confirmPassword"
+              Label="Повтори паролата"
+              InputType="InputType.Password"
+              FullWidth="true" />
 
-<button @onclick="Register">Регистрация</button>
+<MudText Color="Color.Error" Class="mt-2">@errorMessage</MudText>
 
-<p class="text-danger">@errorMessage</p>
+<MudButton Variant="Variant.Filled"
+           OnClick="Register"
+           Class="mt-4">
+    Регистрация
+</MudButton>
 
 @code {
-    private string email;
-    private string password;
-    private string confirmPassword;
-    private string errorMessage;
+    private string email, password, confirmPassword, errorMessage;
 
     private async Task Register()
     {
         errorMessage = "";
-
         if (password != confirmPassword)
         {
             errorMessage = "Паролите не съвпадат!";
             return;
         }
 
-        var success = await AuthService.Register(email, password);
-        if (success)
-        {
-            Navigation.NavigateTo("/login");
-        }
+        if (await AuthService.Register(email, password))
+            Nav.NavigateTo("/login");
         else
-        {
-            errorMessage = "Грешка при регистрацията. Моля, опитайте отново.";
-        }
+            errorMessage = "Грешка при регистрацията.";
     }
 }

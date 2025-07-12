@@ -2,33 +2,70 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
+<!-- 1) All providers are self-closing: -->
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+<!-- 2) Then your layout, which *does* take ChildContent: -->
 <MudLayout>
 
+    <!-- Top App Bar -->
     <MudAppBar Elevation="4">
         <MudText Typo="Typo.h6">HotelMe</MudText>
         <MudSpacer />
+
         @if (isAuthenticated)
         {
             <MudButton Variant="Variant.Text" OnClick="Logout">
-                <MudIcon Icon="@Icons.Material.Filled.Logout" /> Изход
+                <MudIcon Icon="@Icons.Material.Filled.ExitToApp" /> Изход
             </MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Text"
-                       OnClick='@(() => Nav.NavigateTo("/login"))'>
+            <MudButton Variant="Variant.Text" OnClick="GoLogin">
                 <MudIcon Icon="@Icons.Material.Filled.Login" /> Вход
             </MudButton>
         }
     </MudAppBar>
 
-    <MudDrawer Open="true"
-               Variant="DrawerVariant.Mini"
+    <!-- Permanent Drawer -->
+    <MudDrawer Variant="DrawerVariant.Persistent"
+               Open="true"
+               Elevation="1"
                ClipMode="DrawerClipMode.Never">
-        <!-- your MudNavMenu from before -->
+        <MudNavMenu>
+            <MudNavLink Href="" Icon="@Icons.Material.Filled.Home">Начало</MudNavLink>
+
+            @if (isAuthenticated)
+            {
+                @if (userRole == "Admin")
+                {
+                    <MudNavLink Href="admin/users" Icon="@Icons.Material.Filled.AdminPanelSettings">Потребители</MudNavLink>
+                    <MudNavLink Href="admin/chatlog" Icon="@Icons.Material.Filled.Chat">Chat Log</MudNavLink>
+                    <MudNavLink Href="admin/orders" Icon="@Icons.Material.Filled.ListAlt">Поръчки</MudNavLink>
+                }
+                else
+                {
+                    <MudNavLink Href="chat" Icon="@Icons.Material.Filled.Chat">Chat с рецепция</MudNavLink>
+                    <MudNavLink Href="book-room" Icon="@Icons.Material.Filled.EventAvailable">Резервация</MudNavLink>
+                    <MudNavLink Href="checkin" Icon="@Icons.Material.Filled.Hotel">Check-in</MudNavLink>
+                    <MudNavLink Href="roomservice" Icon="@Icons.Material.Filled.Restaurant">Room Service</MudNavLink>
+                    <MudNavLink Href="orders" Icon="@Icons.Material.Filled.ShoppingCart">Моите поръчки</MudNavLink>
+                }
+                <MudNavLink OnClick="Logout" Icon="@Icons.Material.Filled.ExitToApp">Изход</MudNavLink>
+            }
+            else
+            {
+                <MudNavLink OnClick="GoLogin" Icon="@Icons.Material.Filled.Login">Вход</MudNavLink>
+                <MudNavLink Href="register" Icon="@Icons.Material.Filled.PersonAdd">Регистрация</MudNavLink>
+            }
+        </MudNavMenu>
     </MudDrawer>
 
-    <MudMainContent>
+    <!-- Main content -->
+    <MudMainContent Class="pa-4">
         @Body
     </MudMainContent>
 
@@ -36,19 +73,24 @@
 
 @code {
     private bool isAuthenticated;
-    private string userRole;
+    private string userRole = "";
 
     protected override async Task OnInitializedAsync()
     {
         isAuthenticated = await AuthService.IsUserAuthenticated();
         userRole = await AuthService.GetUserRole();
-        AuthService.OnAuthStateChanged += StateHasChanged;
+        AuthService.OnAuthStateChanged += UpdateAuthState;
     }
 
-    void Logout() => Nav.NavigateTo("/logout");
-
-    public void Dispose()
+    private async void UpdateAuthState()
     {
-        AuthService.OnAuthStateChanged -= StateHasChanged;
+        isAuthenticated = await AuthService.IsUserAuthenticated();
+        userRole = await AuthService.GetUserRole();
+        StateHasChanged();
     }
+
+    private void GoLogin() => Nav.NavigateTo("/login");
+    private void Logout() => Nav.NavigateTo("/logout");
+
+    public void Dispose() => AuthService.OnAuthStateChanged -= UpdateAuthState;
 }
