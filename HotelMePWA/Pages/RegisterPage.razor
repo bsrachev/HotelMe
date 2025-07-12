@@ -2,15 +2,15 @@
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 
-<h3>Регистрация</h3>
+<MudText Typo="Typo.h5" Class="mb-2">Регистрация</MudText>
 
-<input @bind="email" placeholder="Email" />
-<input @bind="password" type="password" placeholder="Парола" />
-<input @bind="confirmPassword" type="password" placeholder="Повтори паролата" />
+<MudTextField @bind-Value="email" Label="Email" Class="mb-2" />
+<MudTextField @bind-Value="password" Label="Парола" InputType="InputType.Password" Class="mb-2" />
+<MudTextField @bind-Value="confirmPassword" Label="Повтори паролата" InputType="InputType.Password" Class="mb-2" />
 
-<button @onclick="Register">Регистрация</button>
+<MudButton Color="Color.Primary" OnClick="Register">Регистрация</MudButton>
 
-<p class="text-danger">@errorMessage</p>
+<MudText Color="Color.Error">@errorMessage</MudText>
 
 @code {
     private string email;

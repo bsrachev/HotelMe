@@ -3,65 +3,58 @@
 @inject ChatService ChatService
 @inject AuthService AuthService
 
-<h3>💬 All Chat Messages</h3>
+<MudText Typo="Typo.h5" Class="mb-2">💬 All Chat Messages</MudText>
 
 @if (!isReady)
 {
-    <p>⏳ Loading…</p>
+    <MudProgressCircular Indeterminate="true" Class="my-4" />
 }
 else if (!isAdmin)
 {
-    <p class="text-danger">⛔ Достъп само за администратори.</p>
+    <MudText Color="Color.Error">⛔ Достъп само за администратори.</MudText>
 }
 else if (messages.Count == 0)
 {
-    <p class="text-muted">Няма изпратени съобщения.</p>
+    <MudText Color="Color.Secondary">Няма изпратени съобщения.</MudText>
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>User ID</th>
-                <th>Message</th>
-                <th>Sent At</th>
-                <th>Checked-In?</th>
-                <th>Room</th>           <!-- NEW column -->
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var m in messages)
-            {
-                <tr>
-                    <td>@m.Id</td>
-                    <td>@m.UserId</td>
-                    <td>@m.Message</td>
-                    <td>@m.SentAt.ToLocalTime().ToString("g")</td>
-                    <td>
-                        @if (m.HasActiveBooking)
-                        {
-                            <span class="text-success">Yes</span>
-                        }
-                        else
-                        {
-                            <span class="text-secondary">No</span>
-                        }
-                    </td>
-                    <td>
-                        @if (m.HasActiveBooking && m.RoomNumber != null)
-                        {
-                            @m.RoomNumber
-                        }
-                        else
-                        {
-                            <span class="text-muted">—</span>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <MudTable Items="messages" Elevation="1" Dense="true">
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>User ID</MudTh>
+            <MudTh>Message</MudTh>
+            <MudTh>Sent At</MudTh>
+            <MudTh>Checked-In?</MudTh>
+            <MudTh>Room</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">@context.Id</MudTd>
+            <MudTd DataLabel="User ID">@context.UserId</MudTd>
+            <MudTd DataLabel="Message">@context.Message</MudTd>
+            <MudTd DataLabel="Sent At">@context.SentAt.ToLocalTime().ToString("g")</MudTd>
+            <MudTd DataLabel="Checked-In?">
+                @if (context.HasActiveBooking)
+                {
+                    <MudText Color="Color.Success">Yes</MudText>
+                }
+                else
+                {
+                    <MudText Color="Color.Secondary">No</MudText>
+                }
+            </MudTd>
+            <MudTd DataLabel="Room">
+                @if (context.HasActiveBooking && context.RoomNumber != null)
+                {
+                    @context.RoomNumber
+                }
+                else
+                {
+                    <MudText Color="Color.Secondary">—</MudText>
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
 }
 
 @code {

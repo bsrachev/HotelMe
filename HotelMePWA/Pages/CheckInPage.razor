@@ -3,34 +3,34 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<h3>🏨 Digital Check‑in</h3>
+<MudText Typo="Typo.h5" Class="mb-2">🏨 Digital Check‑in</MudText>
 
 @if (!isInitialized)
 {
-    <p>⏳ Loading…</p>
+    <MudProgressCircular Indeterminate="true" Class="my-4" />
 }
 else if (!isAuthenticated)
 {
-    <p class="text-danger">⛔ You need to <a @onclick="GoLogin">log in</a> as a guest first.</p>
+    <MudText Color="Color.Error">⛔ You need to <MudLink Href="/login">log in</MudLink> as a guest first.</MudText>
 }
 else if (booking == null)
 {
-    <p class="text-muted">No active booking found.</p>
+    <MudText Color="Color.Secondary">No active booking found.</MudText>
 }
 else
 {
-    <p><strong>Room:</strong> @booking.RoomNumber</p>
-    <p><strong>Check‑in Date:</strong> @booking.CheckInDate</p>
-    <p><strong>Check‑out Date:</strong> @booking.CheckOutDate</p>
-    <p><strong>Status:</strong> @booking.Status</p>
+    <MudText><b>Room:</b> @booking.RoomNumber</MudText>
+    <MudText><b>Check‑in Date:</b> @booking.CheckInDate</MudText>
+    <MudText><b>Check‑out Date:</b> @booking.CheckOutDate</MudText>
+    <MudText><b>Status:</b> @booking.Status</MudText>
 
     @if (booking.Status == "Pending")
     {
-        <button class="btn btn-success" @onclick="PerformCheckIn">✅ Check‑in</button>
+        <MudButton Color="Color.Success" OnClick="PerformCheckIn">✅ Check‑in</MudButton>
     }
     else if (booking.Status == "CheckedIn")
     {
-        <button class="btn btn-danger" @onclick="PerformCheckOut">🚪 Check‑out</button>
+        <MudButton Color="Color.Error" OnClick="PerformCheckOut">🚪 Check‑out</MudButton>
     }
 }
 

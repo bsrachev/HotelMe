@@ -4,58 +4,59 @@
 @inject BookingService BookingService
 @inject NavigationManager Nav
 
-<h3>🍽️ Room Service Menu</h3>
+<MudText Typo="Typo.h5" Class="mb-2">🍽️ Room Service Menu</MudText>
 
 @if (!isInit)
 {
-    <p>⏳ Loading…</p>
+    <MudProgressCircular Indeterminate="true" Class="my-4" />
 }
 else if (booking == null || booking.Status != "CheckedIn")
 {
-    <p class="text-danger">
-        ⛔ You must have an active room (Checked-In) to order.
-    </p>
+    <MudText Color="Color.Error">⛔ You must have an active room (Checked-In) to order.</MudText>
 }
 else
 {
-    <p><em>Room: @booking.RoomNumber</em></p>
-    <div class="row">
+    <MudText Typo="Typo.subtitle2"><em>Room: @booking.RoomNumber</em></MudText>
+    <MudGrid Class="mt-2">
         @foreach (var item in menu)
         {
-            <div class="col-md-4 mb-3">
-                <div class="card p-3">
-                    <h5>@item.Name</h5>
-                    <p>@item.Description</p>
-                    <p><strong>Price:</strong> $@item.Price</p>
-                    <button class="btn btn-sm btn-primary" @onclick="() => AddToCart(item)">
-                        🛒 Add to cart
-                    </button>
-                </div>
-            </div>
+            <MudItem xs="12" md="4">
+                <MudCard Class="mb-3">
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@item.Name</MudText>
+                        <MudText>@item.Description</MudText>
+                        <MudText><b>Price:</b> $@item.Price</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Color="Color.Primary" Size="Size.Small" OnClick="() => AddToCart(item)">🛒 Add to cart</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
         }
-    </div>
+    </MudGrid>
 
     @if (cart.Any())
     {
-        <hr />
-        <h5>Your Cart (@cart.Count):</h5>
-        <ul class="list-group mb-2">
+        <MudDivider Class="my-2" />
+        <MudText Typo="Typo.h6">Your Cart (@cart.Count):</MudText>
+        <MudList Dense="true" Class="mb-2">
             @foreach (var c in cart)
             {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    @c.Name
-                    <button class="btn btn-sm btn-danger" @onclick="() => RemoveFromCart(c)">✖</button>
-                </li>
+                <MudListItem>
+                    <MudText>@c.Name</MudText>
+                    <MudSpacer />
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" Size="Size.Small" OnClick="() => RemoveFromCart(c)" />
+                </MudListItem>
             }
-        </ul>
+        </MudList>
 
-        <button class="btn btn-success" @onclick="SubmitOrder" disabled="@isSubmitting">
+        <MudButton Color="Color.Success" Disabled="@isSubmitting" OnClick="SubmitOrder">
             @(isSubmitting ? "⏳ Submitting…" : "✅ Submit Order")
-        </button>
+        </MudButton>
 
         @if (!string.IsNullOrEmpty(feedback))
         {
-            <p class="mt-2">@feedback</p>
+            <MudText Class="mt-2">@feedback</MudText>
         }
     }
 }
