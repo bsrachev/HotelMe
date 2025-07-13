@@ -3,47 +3,62 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<MudText Typo="Typo.h5" Class="mb-4">🏨 Digital Check-in</MudText>
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudText Typo="Typo.h5" Class="mb-4">🏨 Digital Check-in</MudText>
 
-@if (!isInitialized)
-{
-    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
-}
-else if (!isAuthenticated)
-{
-    <MudAlert Severity="Severity.Error">
-        ⛔ You must <MudLink Href="login">log in</MudLink> first.
-    </MudAlert>
-}
-else if (booking == null)
-{
-    <MudText Color="Color.Secondary">No active booking found.</MudText>
-}
-else
-{
-    <MudCard Class="pa-4">
-        <MudText><strong>Room:</strong> @booking.RoomNumber</MudText>
-        <MudText><strong>Check-in:</strong> @booking.CheckInDate:yyyy-MM-dd</MudText>
-        <MudText><strong>Check-out:</strong> @booking.CheckOutDate:yyyy-MM-dd</MudText>
-        <MudText><strong>Status:</strong> @booking.Status</MudText>
-        @if (booking.Status == "Pending")
-        {
-            <MudButton Color="Color.Success"
-                       OnClick="PerformCheckIn"
-                       Class="mt-4">
-                ✅ Check-in
-            </MudButton>
-        }
-        else if (booking.Status == "CheckedIn")
-        {
-            <MudButton Color="Color.Error"
-                       OnClick="PerformCheckOut"
-                       Class="mt-4">
-                🚪 Check-out
-            </MudButton>
-        }
-    </MudCard>
-}
+    @if (!isInitialized)
+    {
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+    }
+    else if (!isAuthenticated)
+    {
+        <MudAlert Severity="Severity.Error">
+            ⛔ You must <MudLink Href="login">log in</MudLink> first.
+        </MudAlert>
+    }
+    else if (booking == null)
+    {
+        <MudText Color="Color.Secondary">No active booking found.</MudText>
+    }
+    else
+    {
+        <MudCard Elevation="2" Class="pa-4">
+            <MudStack Spacing="1">
+                <MudText>
+                    <strong>Room:</strong> @booking.RoomNumber
+                </MudText>
+                <MudText>
+                    <strong>Check-in:</strong>
+                    @booking.CheckInDate.ToString("yyyy-MM-dd")
+                </MudText>
+                <MudText>
+                    <strong>Check-out:</strong>
+                    @booking.CheckOutDate.ToString("yyyy-MM-dd")
+                </MudText>
+                <MudText>
+                    <strong>Status:</strong> @booking.Status
+                </MudText>
+
+                @if (booking.Status == "Pending")
+                {
+                    <MudButton Color="Color.Success"
+                               OnClick="PerformCheckIn"
+                               Class="mt-4">
+                        ✅ Check-in
+                    </MudButton>
+                }
+                else if (booking.Status == "CheckedIn")
+                {
+                    <MudButton Color="Color.Error"
+                               OnClick="PerformCheckOut"
+                               Class="mt-4">
+                        🚪 Check-out
+                    </MudButton>
+                }
+            </MudStack>
+        </MudCard>
+    }
+</MudContainer>
 
 @code {
     private Booking booking;

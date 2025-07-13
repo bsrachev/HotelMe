@@ -1,68 +1,97 @@
 ﻿@page "/book-room"
 @using HotelMe.Shared.Models
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Forms
 @inject BookingService BookingService
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<MudText Typo="Typo.h5" Class="mb-4">📅 Make a Booking</MudText>
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudText Typo="Typo.h5" Class="mb-4">📅 Make a Booking</MudText>
 
-@if (!isReady)
-{
-    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
-}
-else if (!isAuthenticated)
-{
-    <MudAlert Severity="Severity.Error">
-        ⛔ You must <MudLink Href="login">log in</MudLink> first.
-    </MudAlert>
-}
-else if (existingBooking != null)
-{
-    <MudAlert Severity="Severity.Success">
-        ✅ You already have a booking for room
-        <strong>@existingBooking.RoomNumber</strong>
-        from @existingBooking.CheckInDate:yyyy-MM-dd
-        to @existingBooking.CheckOutDate:yyyy-MM-dd.
-    </MudAlert>
-    <MudButton Variant="Variant.Text" OnClick="GoCheckIn">
-        Go to Check-in Page
-    </MudButton>
-}
-else
-{
-    <MudPaper Class="pa-4">
-        <EditForm Model="request" OnValidSubmit="SubmitBooking">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+    @if (!isReady)
+    {
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+    }
+    else if (!isAuthenticated)
+    {
+        <MudAlert Severity="Severity.Error">
+            ⛔ You must <MudLink Href="login">log in</MudLink> first.
+        </MudAlert>
+    }
+    else if (existingBooking != null)
+    {
+        <MudAlert Severity="Severity.Success" Class="mb-4">
+            ✅ You already have a booking for room
+            <strong>@existingBooking.RoomNumber</strong>
+            from @existingBooking.CheckInDate:yyyy-MM-dd
+            to @existingBooking.CheckOutDate:yyyy-MM-dd.
+        </MudAlert>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="GoCheckIn"
+                   Class="w-100">
+            Go to Check-In Page
+        </MudButton>
+    }
+    else
+    {
+        <MudPaper Elevation="2" Class="pa-4">
+            <EditForm Model="request"
+                      OnValidSubmit="HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-            <MudTextField @bind-Value="request.RoomNumber"
-                          Label="Room Number"
-                          Required="true" />
+                <MudStack Spacing="3">
+                    <MudTextField @bind-Value="request.RoomNumber"
+                                  Label="Room Number"
+                                  Variant="Variant.Outlined"
+                                  Required="true"
+                                  Class="w-100" />
 
-            <MudDatePicker T="DateTime"
-                           @bind-Value="request.CheckInDate"
-                           Label="Check-in Date"
-                           Required="true" />
+                    <MudDatePicker T="DateTime"
+                                   @bind-Date="request.CheckInDate"
+                                   Label="Check-In Date"
+                                   Variant="Variant.Outlined"
+                                   Required="true"
+                                   Class="w-100" />
 
-            <MudDatePicker T="DateTime"
-                           @bind-Value="request.CheckOutDate"
-                           Label="Check-out Date"
-                           Required="true" />
+                    <MudDatePicker T="DateTime"
+                                   @bind-Date="request.CheckOutDate"
+                                   Label="Check-Out Date"
+                                   Variant="Variant.Outlined"
+                                   Required="true"
+                                   Class="w-100" />
 
-            <MudButton Type="Submit"
-                       Variant="Variant.Filled"
-                       Disabled="isSubmitting"
-                       Class="mt-4">
-                @(isSubmitting ? "⏳ Booking…" : "✅ Book Now")
-            </MudButton>
-        </EditForm>
+                    <MudButton Type="Submit"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Disabled="isSubmitting"
+                               Class="w-100 mt-4">
+                        @if (isSubmitting)
+                        {
+                            <MudProgressCircular Size="Size.Small"
+                                                 Indeterminate="true"
+                                                 Class="mr-2" />
+                            <span>Booking...</span>
+                        }
+                        else
+                        {
+                            <span>Book Now</span>
+                        }
+                    </MudButton>
+                </MudStack>
+            </EditForm>
 
-        @if (!string.IsNullOrEmpty(feedback))
-        {
-            <MudText Class="mt-2">@feedback</MudText>
-        }
-    </MudPaper>
-}
+            @if (!string.IsNullOrEmpty(feedback))
+            {
+                <MudText Class="mt-2" Color="Color.Error">
+                    @feedback
+                </MudText>
+            }
+        </MudPaper>
+    }
+</MudContainer>
 
 @code {
     private BookingRequest request = new()
@@ -70,7 +99,9 @@ else
             CheckInDate = DateTime.Today,
             CheckOutDate = DateTime.Today.AddDays(1)
         };
-    private bool isReady, isAuthenticated, isSubmitting;
+    private bool isReady;
+    private bool isAuthenticated;
+    private bool isSubmitting;
     private string feedback = "";
     private Booking existingBooking;
 
@@ -84,7 +115,8 @@ else
 
     private void GoCheckIn() => Nav.NavigateTo("/checkin");
 
-    private async Task SubmitBooking()
+    // Matches EditForm.OnValidSubmit signature: Func<EditContext, Task>
+    private async Task HandleValidSubmit(EditContext context)
     {
         isSubmitting = true;
         var ok = await BookingService.CreateBooking(request);
@@ -92,7 +124,7 @@ else
 
         if (ok)
         {
-            feedback = "🎉 Booking created! You can now check-in on arrival.";
+            feedback = "";
             Nav.NavigateTo("/checkin");
         }
         else

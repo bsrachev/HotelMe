@@ -2,28 +2,75 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<MudText Typo="Typo.h5" Class="mb-4">Login</MudText>
+<MudPaper Elevation="8"
+          Class="mx-auto mt-12 pa-6"
+          Style="max-width:400px;">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h5" Align="Align.Center">Login</MudText>
 
-<MudTextField @bind-Value="email"
-              Label="Email"
-              FullWidth="true" />
-<MudTextField @bind-Value="password"
-              Label="Password"
-              InputType="InputType.Password"
-              FullWidth="true" />
+        <MudTextField Label="Email"
+                      @bind-Value="email"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Required="true" />
 
-<MudButton Variant="Variant.Filled"
-           OnClick="Login"
-           Class="mt-4">
-    Login
-</MudButton>
+        <MudTextField Label="Password"
+                      @bind-Value="password"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Password"
+                      FullWidth="true"
+                      Required="true" />
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="Login"
+                   Disabled="isSubmitting"
+                   FullWidth="true">
+            @if (isSubmitting)
+            {
+                <MudProgressCircular Size="Size.Small"
+                                     Indeterminate="true"
+                                     Class="mr-2" />
+                <span>Logging in...</span>
+            }
+            else
+            {
+                <span>Login</span>
+            }
+        </MudButton>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <MudText Color="Color.Error"
+                     Align="Align.Center">
+                @errorMessage
+            </MudText>
+        }
+    </MudStack>
+</MudPaper>
 
 @code {
-    private string email, password;
+    private string email;
+    private string password;
+    private string errorMessage;
+    private bool isSubmitting;
 
     private async Task Login()
     {
-        if (await AuthService.Login(email, password))
+        errorMessage = null;
+        isSubmitting = true;
+
+        var success = await AuthService.Login(email, password);
+
+        isSubmitting = false;
+
+        if (success)
+        {
             Nav.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Invalid email or password.";
+        }
     }
 }

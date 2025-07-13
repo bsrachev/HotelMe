@@ -1,26 +1,43 @@
 ﻿@page "/chat"
 @inject ChatService ChatService
 
-<MudText Typo="Typo.h5" Class="mb-4">💬 Live Chat with Reception</MudText>
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudText Typo="Typo.h5" Class="mb-4">💬 Live Chat with Reception</MudText>
 
-<MudTextField @bind-Value="messageText"
-              Label="Your Message"
-              Variant="Variant.Outlined"
-              FullWidth="true" />
+    <MudPaper Elevation="2" Class="pa-4">
+        <MudStack Spacing="2">
+            <MudTextField @bind-Value="messageText"
+                          Label="Your Message"
+                          Variant="Variant.Outlined"
+                          FullWidth="true" />
 
-<MudButton Variant="Variant.Filled"
-           Disabled="isSending"
-           OnClick="SendMessage"
-           Class="mt-2">
-    @(isSending ? "⏳ Sending…" : "📩 Send")
-</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="SendMessage"
+                       Disabled="isSending"
+                       Class="mt-2">
+                @if (isSending)
+                {
+                    <MudProgressCircular Size="Size.Small"
+                                         Indeterminate="true"
+                                         Class="mr-2" />
+                    <span>Sending...</span>
+                }
+                else
+                {
+                    <span>Send</span>
+                }
+            </MudButton>
 
-@if (!string.IsNullOrEmpty(feedbackMessage))
-{
-    <MudAlert Severity="Severity.Success" Class="mt-2">
-        @feedbackMessage
-    </MudAlert>
-}
+            @if (!string.IsNullOrEmpty(feedbackMessage))
+            {
+                <MudAlert Severity="Severity.Success">
+                    @feedbackMessage
+                </MudAlert>
+            }
+        </MudStack>
+    </MudPaper>
+</MudContainer>
 
 @code {
     private string messageText = "";
@@ -35,7 +52,12 @@
         isSending = true;
         var ok = await ChatService.SendMessage(messageText);
         isSending = false;
-        feedbackMessage = ok ? "✅ Message sent!" : "❌ Failed to send message.";
-        if (ok) messageText = "";
+
+        feedbackMessage = ok
+            ? "✅ Message sent!"
+            : "❌ Failed to send message.";
+
+        if (ok)
+            messageText = "";
     }
 }

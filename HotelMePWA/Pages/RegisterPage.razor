@@ -2,43 +2,88 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<MudText Typo="Typo.h5" Class="mb-4">Register</MudText>
+<MudPaper Elevation="8"
+          Class="mx-auto mt-12 pa-6"
+          Style="max-width:400px;">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h5" Align="Align.Center">Register</MudText>
 
-<MudTextField @bind-Value="email"
-              Label="Email"
-              FullWidth="true" />
-<MudTextField @bind-Value="password"
-              Label="Password"
-              InputType="InputType.Password"
-              FullWidth="true" />
-<MudTextField @bind-Value="confirmPassword"
-              Label="Confirm Password"
-              InputType="InputType.Password"
-              FullWidth="true" />
+        <MudTextField Label="Email"
+                      @bind-Value="email"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Required="true" />
 
-<MudText Color="Color.Error" Class="mt-2">@errorMessage</MudText>
+        <MudTextField Label="Password"
+                      @bind-Value="password"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Password"
+                      FullWidth="true"
+                      Required="true" />
 
-<MudButton Variant="Variant.Filled"
-           OnClick="Register"
-           Class="mt-4">
-    Register
-</MudButton>
+        <MudTextField Label="Confirm Password"
+                      @bind-Value="confirmPassword"
+                      Variant="Variant.Outlined"
+                      InputType="InputType.Password"
+                      FullWidth="true"
+                      Required="true" />
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="Register"
+                   Disabled="isSubmitting"
+                   FullWidth="true">
+            @if (isSubmitting)
+            {
+                <MudProgressCircular Size="Size.Small"
+                                     Indeterminate="true"
+                                     Class="mr-2" />
+                <span>Registering...</span>
+            }
+            else
+            {
+                <span>Register</span>
+            }
+        </MudButton>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <MudText Color="Color.Error"
+                     Align="Align.Center">
+                @errorMessage
+            </MudText>
+        }
+    </MudStack>
+</MudPaper>
 
 @code {
-    private string email, password, confirmPassword, errorMessage;
+    private string email;
+    private string password;
+    private string confirmPassword;
+    private string errorMessage;
+    private bool isSubmitting;
 
     private async Task Register()
     {
-        errorMessage = "";
+        errorMessage = null;
+
         if (password != confirmPassword)
         {
-            errorMessage = "The passwords don't match!";
+            errorMessage = "Passwords do not match.";
             return;
         }
 
-        if (await AuthService.Register(email, password))
+        isSubmitting = true;
+        var success = await AuthService.Register(email, password);
+        isSubmitting = false;
+
+        if (success)
+        {
             Nav.NavigateTo("/login");
+        }
         else
-            errorMessage = "Registration error.";
+        {
+            errorMessage = "Registration failed. Please try again.";
+        }
     }
 }
