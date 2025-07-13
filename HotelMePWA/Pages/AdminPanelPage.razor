@@ -2,7 +2,7 @@
 @inject AuthService AuthService
 @inject HttpClient Http
 
-<MudText Typo="Typo.h5" Class="mb-4">👑 Администраторски панел</MudText>
+<MudText Typo="Typo.h5" Class="mb-4">👥 Users</MudText>
 
 @if (!isReady)
 {
@@ -10,18 +10,18 @@
 }
 else if (!isAdmin)
 {
-    <MudAlert Severity="Severity.Error">⛔ Трябва да сте влезли като администратор!</MudAlert>
+    <MudAlert Severity="Severity.Error">⛔ Must be an Administrator.</MudAlert>
 }
 else if (users.Count == 0)
 {
-    <MudText Color="Color.Secondary">Няма налични потребители.</MudText>
+    <MudText Color="Color.Secondary">No users found.</MudText>
 }
 else
 {
     <MudTable Items="users" Striped="true" Hover="true">
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh>Потребителско име</MudTh>
+            <MudTh>Username</MudTh>
             <MudTh>Email</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -34,7 +34,7 @@ else
                Color="Color.Primary"
                OnClick="LoadUsers"
                Class="mt-2">
-        🔄 Презареди потребители
+        🔄 Reload
     </MudButton>
 }
 

@@ -1,32 +1,139 @@
 ﻿@page "/"
+@inject AuthService AuthService
+@inject NavigationManager Nav
 
-<MudPaper Class="pa-4">
-    <MudText Typo="Typo.h3" Class="mb-2">Welcome to HotelMe!</MudText>
-    <MudText Class="mb-4">
-        Enjoy a seamless stay with online booking, digital check-in,
-        live chat with reception and convenient room service ordering.
-    </MudText>
+@if (!isInitialized)
+{
+    <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+}
+else if (!isAuthenticated)
+{
+    <MudCarousel TData="string"
+                 AutoCycle="true"
+                 CycleInterval="5000"
+                 Height="2400px"
+                 Class="mb-6">
+        <MudCarouselItem>
+            <img src="img/lobby.jpg"
+                 style="width:100%;height:100%;object-fit:cover" />
+            <MudCarouselContent>
+                <MudText Typo="Typo.h3" Class="mud-text-white">Welcome to HotelMe</MudText>
+                <MudText Class="mud-text-white">Relax in our stylish lobby.</MudText>
+            </MudCarouselContent>
+        </MudCarouselItem>
+        <MudCarouselItem>
+            <img src="img/room.jpg"
+                 style="width:100%;height:100%;object-fit:cover" />
+            <MudCarouselContent>
+                <MudText Typo="Typo.h3" Class="mud-text-white">Cozy Rooms</MudText>
+                <MudText Class="mud-text-white">Comfort and style await.</MudText>
+            </MudCarouselContent>
+        </MudCarouselItem>
+        <MudCarouselItem>
+            <img src="img/restaurant.jpg"
+                 style="width:100%;height:100%;object-fit:cover" />
+            <MudCarouselContent>
+                <MudText Typo="Typo.h3" Class="mud-text-white">Fine Dining</MudText>
+                <MudText Class="mud-text-white">Delicious meals anytime.</MudText>
+            </MudCarouselContent>
+        </MudCarouselItem>
+    </MudCarousel>
 
-    <MudNavMenu Dense="true">
-        <MudNavLink Href="book-room"
-                    Icon="@Icons.Material.Filled.EventAvailable">
-            Book a Room
-        </MudNavLink>
-        <MudNavLink Href="checkin"
-                    Icon="@Icons.Material.Filled.Hotel">
-            Digital Check-in
-        </MudNavLink>
-        <MudNavLink Href="chat"
-                    Icon="@Icons.Material.Filled.Chat">
-            Chat with Reception
-        </MudNavLink>
-        <MudNavLink Href="roomservice"
-                    Icon="@Icons.Material.Filled.Restaurant">
-            Order Room Service
-        </MudNavLink>
-        <MudNavLink Href="orders"
-                    Icon="@Icons.Material.Filled.ShoppingCart">
-            View My Orders
-        </MudNavLink>
-    </MudNavMenu>
-</MudPaper>
+
+    <!-- Feature cards -->
+    <MudGrid GutterSize="GutterSize.Small" Class="mb-6">
+        <MudItem xs="12" sm="4">
+            <MudCard Hover="true">
+                <MudCardMedia Image="img/roomservice.jpg" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">Room Service</MudText>
+                    <MudText>Order delicious meals and snacks any time of day.</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudCard Hover="true">
+                <MudCardMedia Image="img/checkin.jpg" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">Digital Check-In</MudText>
+                    <MudText>Skip the desk: check in from your phone.</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudCard Hover="true">
+                <MudCardMedia Image="img/concierge.jpg" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">Live Chat</MudText>
+                    <MudText>Get instant assistance from our front-desk team.</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Call-to-action buttons -->
+    <MudStack Direction="Row" Spacing="2">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => Nav.NavigateTo("/login"))">
+            🔑 Login
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => Nav.NavigateTo("/register"))">
+            📋 Register
+        </MudButton>
+    </MudStack>
+}
+else if (isAdmin)
+{
+    <!-- Admin view (same as before) -->
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h4" Class="mb-3">🔧 Admin Panel</MudText>
+        <MudNavMenu Dense="true">
+            <MudNavLink Href="admin/users" Icon="@Icons.Material.Filled.AdminPanelSettings">
+                Manage Users
+            </MudNavLink>
+            <MudNavLink Href="admin/chatlog" Icon="@Icons.Material.Filled.Chat">
+                View Chat Log
+            </MudNavLink>
+            <MudNavLink Href="admin/orders" Icon="@Icons.Material.Filled.ListAlt">
+                Manage Orders
+            </MudNavLink>
+        </MudNavMenu>
+    </MudPaper>
+}
+else
+{
+    <!-- Authenticated user view (same as before) -->
+    <MudPaper Class="pa-4">
+        <MudText Typo="Typo.h4" Class="mb-3">👤 Welcome Back!</MudText>
+        <MudNavMenu Dense="true">
+            <MudNavLink Href="book-room" Icon="@Icons.Material.Filled.EventAvailable">
+                Book a Room
+            </MudNavLink>
+            <MudNavLink Href="checkin" Icon="@Icons.Material.Filled.Hotel">
+                Digital Check-in
+            </MudNavLink>
+            <MudNavLink Href="chat" Icon="@Icons.Material.Filled.Chat">
+                Chat with Reception
+            </MudNavLink>
+            <MudNavLink Href="roomservice" Icon="@Icons.Material.Filled.Restaurant">
+                Order Room Service
+            </MudNavLink>
+            <MudNavLink Href="orders" Icon="@Icons.Material.Filled.ShoppingCart">
+                View My Orders
+            </MudNavLink>
+        </MudNavMenu>
+    </MudPaper>
+}
+
+@code {
+    private bool isInitialized;
+    private bool isAuthenticated;
+    private bool isAdmin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await AuthService.IsUserAuthenticated();
+        var role = await AuthService.GetUserRole();
+        isAdmin = role == "Admin";
+        isInitialized = true;
+    }
+}

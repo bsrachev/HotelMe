@@ -101,3 +101,32 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+.mud-drawer .mud-drawer-paper {
+    background-color: var(--mud-palette-primary) !important;
+}
+
+.mud-drawer .mud-nav-link,
+.mud-drawer .mud-nav-link:hover,
+.mud-drawer .mud-nav-link.mud-nav-link-active {
+    color: white !important;
+}
+
+.mud-drawer .mud-nav-link:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+}
+
+@media (min-width: 960px) {
+    .mud-drawer-open-responsive-md-left.mud-drawer-left-clipped-never .mud-appbar {
+        width: unset !important;
+        margin-left: unset !important;
+    }
+}
+
+.mud-appbar.mud-appbar-fixed-top {
+    position: sticky !important;
+}
+
+.mud-carousel {
+    height: 15rem !important;
+}

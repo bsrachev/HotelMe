@@ -2,17 +2,17 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<MudText Typo="Typo.h5" Class="mb-4">Регистрация</MudText>
+<MudText Typo="Typo.h5" Class="mb-4">Register</MudText>
 
 <MudTextField @bind-Value="email"
               Label="Email"
               FullWidth="true" />
 <MudTextField @bind-Value="password"
-              Label="Парола"
+              Label="Password"
               InputType="InputType.Password"
               FullWidth="true" />
 <MudTextField @bind-Value="confirmPassword"
-              Label="Повтори паролата"
+              Label="Confirm Password"
               InputType="InputType.Password"
               FullWidth="true" />
 
@@ -21,7 +21,7 @@
 <MudButton Variant="Variant.Filled"
            OnClick="Register"
            Class="mt-4">
-    Регистрация
+    Register
 </MudButton>
 
 @code {
@@ -32,13 +32,13 @@
         errorMessage = "";
         if (password != confirmPassword)
         {
-            errorMessage = "Паролите не съвпадат!";
+            errorMessage = "The passwords don't match!";
             return;
         }
 
         if (await AuthService.Register(email, password))
             Nav.NavigateTo("/login");
         else
-            errorMessage = "Грешка при регистрацията.";
+            errorMessage = "Registration error.";
     }
 }

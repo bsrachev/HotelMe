@@ -11,11 +11,11 @@
 }
 else if (!isAdmin)
 {
-    <MudAlert Severity="Severity.Error">⛔ Достъп само за администратори.</MudAlert>
+    <MudAlert Severity="Severity.Error">⛔ Must be an Administrator.</MudAlert>
 }
 else if (orders.Count == 0)
 {
-    <MudText Color="Color.Secondary">Няма поръчки.</MudText>
+    <MudText Color="Color.Secondary">No orders made.</MudText>
 }
 else
 {

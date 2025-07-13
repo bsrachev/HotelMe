@@ -12,7 +12,7 @@
 else if (!isAuth)
 {
     <MudAlert Severity="Severity.Error">
-        ⛔ Please <MudLink Href="login">log in</MudLink>.
+        ⛔ You must <MudLink Href="login">log in</MudLink> first.
     </MudAlert>
 }
 else if (orders.Count == 0)
@@ -25,11 +25,24 @@ else
         @foreach (var o in orders)
         {
             <MudExpansionPanel Text="@($"Order #{o.Id} – {o.CreatedAt.ToLocalTime():g} – {o.Status}")">
+                @{
+                    // group identical items
+                    var groupedItems = o.Items
+                    .GroupBy(i => new { i.MenuItemName, i.Price })
+                    .Select(g => new
+                    {
+                        Name = g.Key.MenuItemName,
+                        Qty = g.Sum(x => x.Quantity),
+                        Total = g.Sum(x => x.Quantity * x.Price)
+                    })
+                    .ToList();
+                }
+
                 <ul class="mud-list">
-                    @foreach (var i in o.Items)
+                    @foreach (var gi in groupedItems)
                     {
                         <li class="mud-list-item">
-                            @i.MenuItemName × @i.Quantity — $@i.Price
+                            @gi.Name × @gi.Qty — $@gi.Total.ToString("F2")
                         </li>
                     }
                 </ul>

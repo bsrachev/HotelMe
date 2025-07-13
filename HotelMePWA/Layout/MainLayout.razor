@@ -2,72 +2,155 @@
 @inject AuthService AuthService
 @inject NavigationManager Nav
 
-<!-- 1) All providers are self-closing: -->
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <MudPopoverProvider />
 
-<!-- 2) Then your layout, which *does* take ChildContent: -->
 <MudLayout>
 
-    <!-- Top App Bar -->
-    <MudAppBar Elevation="4">
+    <MudAppBar Elevation="4"
+               Color="Color.Primary"
+               Position="Position.Fixed">
         <MudHidden Breakpoint="Breakpoint.MdAndUp">
-            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleDrawer" />
+            <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                           Color="Color.Inherit"
+                           Edge="Edge.Start"
+                           OnClick="ToggleDrawer" />
         </MudHidden>
-        <MudText Typo="Typo.h6">HotelMe</MudText>
+
+        <MudText Typo="Typo.h6"
+                 Class="mud-text-white ml-2">
+            HotelMe
+        </MudText>
+
         <MudSpacer />
 
         @if (isAuthenticated)
         {
-            <MudButton Variant="Variant.Text" OnClick="Logout">
-                <MudIcon Icon="@Icons.Material.Filled.ExitToApp" /> Изход
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Inherit"
+                       OnClick="Logout">
+                <MudIcon Icon="@Icons.Material.Filled.ExitToApp" /> Logout
             </MudButton>
         }
         else
         {
-            <MudButton Variant="Variant.Text" OnClick="GoLogin">
-                <MudIcon Icon="@Icons.Material.Filled.Login" /> Вход
+            <MudButton Variant="Variant.Text"
+                       Color="Color.Inherit"
+                       OnClick="GoLogin">
+                <MudIcon Icon="@Icons.Material.Filled.Login" /> Login
             </MudButton>
         }
     </MudAppBar>
 
-    <!-- Navigation Drawer -->
     <MudDrawer Variant="DrawerVariant.Responsive"
+               Color="Color.Primary"
+               Class="mud-theme-primary"
                @bind-Open="_drawerOpen"
                Elevation="1"
                ClipMode="DrawerClipMode.Never">
         <MudNavMenu>
-            <MudNavLink Href="" Icon="@Icons.Material.Filled.Home">Начало</MudNavLink>
+            <MudNavLink Href=""
+                        Icon="@Icons.Material.Filled.Home"
+                        IconColor="Color.Inherit"
+                        Class="mud-text-white"
+                        ActiveClass="mud-text-white">
+                Home
+            </MudNavLink>
 
             @if (isAuthenticated)
             {
                 @if (userRole == "Admin")
                 {
-                    <MudNavLink Href="admin/users" Icon="@Icons.Material.Filled.AdminPanelSettings">Потребители</MudNavLink>
-                    <MudNavLink Href="admin/chatlog" Icon="@Icons.Material.Filled.Chat">Chat Log</MudNavLink>
-                    <MudNavLink Href="admin/orders" Icon="@Icons.Material.Filled.ListAlt">Поръчки</MudNavLink>
+                    <MudNavLink Href="admin/users"
+                                Icon="@Icons.Material.Filled.AdminPanelSettings"
+                                IconColor="Color.Inherit"
+                                Class="mud-text-white"
+                                ActiveClass="mud-text-white">
+                        Users
+                    </MudNavLink>
+                    <MudNavLink Href="admin/chatlog"
+                                Icon="@Icons.Material.Filled.Chat"
+                                IconColor="Color.Inherit"
+                                Class="mud-text-white"
+                                ActiveClass="mud-text-white">
+                        Chat Log
+                    </MudNavLink>
+                    <MudNavLink Href="admin/orders"
+                                Icon="@Icons.Material.Filled.ListAlt"
+                                IconColor="Color.Inherit"
+                                Class="mud-text-white"
+                                ActiveClass="mud-text-white">
+                        Orders
+                    </MudNavLink>
                 }
                 else
                 {
-                    <MudNavLink Href="chat" Icon="@Icons.Material.Filled.Chat">Chat с рецепция</MudNavLink>
-                    <MudNavLink Href="book-room" Icon="@Icons.Material.Filled.EventAvailable">Резервация</MudNavLink>
-                    <MudNavLink Href="checkin" Icon="@Icons.Material.Filled.Hotel">Check-in</MudNavLink>
-                    <MudNavLink Href="roomservice" Icon="@Icons.Material.Filled.Restaurant">Room Service</MudNavLink>
-                    <MudNavLink Href="orders" Icon="@Icons.Material.Filled.ShoppingCart">Моите поръчки</MudNavLink>
+                    <MudNavLink Href="book-room"
+                                Icon="@Icons.Material.Filled.EventAvailable"
+                                IconColor="Color.Inherit"
+                                Class="mud-text-white"
+                                ActiveClass="mud-text-white">
+                        My Booking
+                    </MudNavLink>
+                    <MudNavLink Href="checkin"
+                                Icon="@Icons.Material.Filled.Hotel"
+                                IconColor="Color.Inherit"
+                                Class="mud-text-white"
+                                ActiveClass="mud-text-white">
+                        Check-in
+                    </MudNavLink>
+                    <MudNavLink Href="chat"
+                                Icon="@Icons.Material.Filled.Chat"
+                                IconColor="Color.Inherit"
+                                Class="mud-text-white"
+                                ActiveClass="mud-text-white">
+                        Chat with Reception
+                    </MudNavLink>
+                    <MudNavLink Href="roomservice"
+                                Icon="@Icons.Material.Filled.Restaurant"
+                                IconColor="Color.Inherit"
+                                Class="mud-text-white"
+                                ActiveClass="mud-text-white">
+                        Room Service
+                    </MudNavLink>
+                    <MudNavLink Href="orders"
+                                Icon="@Icons.Material.Filled.ShoppingCart"
+                                IconColor="Color.Inherit"
+                                Class="mud-text-white"
+                                ActiveClass="mud-text-white">
+                        My Orders
+                    </MudNavLink>
                 }
-                <MudNavLink OnClick="Logout" Icon="@Icons.Material.Filled.ExitToApp">Изход</MudNavLink>
+                <MudNavLink OnClick="Logout"
+                            Icon="@Icons.Material.Filled.ExitToApp"
+                            IconColor="Color.Inherit"
+                            Class="mud-text-white"
+                            ActiveClass="mud-text-white">
+                    Logout
+                </MudNavLink>
             }
             else
             {
-                <MudNavLink OnClick="GoLogin" Icon="@Icons.Material.Filled.Login">Вход</MudNavLink>
-                <MudNavLink Href="register" Icon="@Icons.Material.Filled.PersonAdd">Регистрация</MudNavLink>
+                <MudNavLink OnClick="GoLogin"
+                            Icon="@Icons.Material.Filled.Login"
+                            IconColor="Color.Inherit"
+                            Class="mud-text-white"
+                            ActiveClass="mud-text-white">
+                    Login
+                </MudNavLink>
+                <MudNavLink Href="register"
+                            Icon="@Icons.Material.Filled.PersonAdd"
+                            IconColor="Color.Inherit"
+                            Class="mud-text-white"
+                            ActiveClass="mud-text-white">
+                    Register
+                </MudNavLink>
             }
         </MudNavMenu>
     </MudDrawer>
 
-    <!-- Main content -->
     <MudMainContent Class="pa-4">
         @Body
     </MudMainContent>
@@ -96,7 +179,6 @@
 
     private void GoLogin() => Nav.NavigateTo("/login");
     private void Logout() => Nav.NavigateTo("/logout");
-
     private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
 
     public void Dispose() => AuthService.OnAuthStateChanged -= UpdateAuthState;
