@@ -49,21 +49,21 @@
                                   Required="true"
                                   Class="w-100" />
 
-                    <MudDatePicker T="DateTime"
+                    <MudDatePicker T="DateTime?"
                                    @bind-Date="request.CheckInDate"
                                    Label="Check-In Date"
                                    Variant="Variant.Outlined"
                                    Required="true"
                                    Class="w-100" />
 
-                    <MudDatePicker T="DateTime"
+                    <MudDatePicker T="DateTime?"
                                    @bind-Date="request.CheckOutDate"
                                    Label="Check-Out Date"
                                    Variant="Variant.Outlined"
                                    Required="true"
                                    Class="w-100" />
 
-                    <MudButton Type="Submit"
+                    <MudButton ButtonType="ButtonType.Submit"
                                Variant="Variant.Filled"
                                Color="Color.Primary"
                                Disabled="isSubmitting"

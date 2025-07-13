@@ -34,6 +34,7 @@ namespace HotelMeAPI.Controllers
                                            .Select(b => b.RoomNumber)
                                            .FirstOrDefault()
                 })
+                .OrderByDescending(o => o.Id)
                 .ToListAsync();
 
             return Ok(list);
