@@ -38,8 +38,8 @@ namespace HotelMeAPI.Controllers
             {
                 UserId = userId,
                 RoomNumber = req.RoomNumber,
-                CheckInDate = req.CheckInDate,
-                CheckOutDate = req.CheckOutDate,
+                CheckInDate = req.CheckInDate!.Value,
+                CheckOutDate = req.CheckOutDate!.Value,
                 Status = "Pending"
             };
 

@@ -13,15 +13,15 @@ namespace HotelMe.Shared.Models
 
         [Required]
         [DataType(DataType.Date)]
-        public DateTime CheckInDate { get; set; }
+        public DateTime? CheckInDate { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
-        public DateTime CheckOutDate { get; set; }
+        public DateTime? CheckOutDate { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (CheckOutDate < CheckInDate)
+            if (CheckInDate.HasValue && CheckOutDate.HasValue && CheckOutDate < CheckInDate)
             {
                 yield return new ValidationResult(
                     "Check-out date must be after check-in date",
