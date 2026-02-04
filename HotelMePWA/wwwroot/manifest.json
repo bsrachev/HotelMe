@@ -3,8 +3,8 @@
   "short_name": "HotelMe",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#4B0082",
-  "theme_color": "#4B0082",
+  "background_color": "#594ae2",
+  "theme_color": "#594ae2",
   "icons": [
     {
       "src": "icons/icon-192.png",
