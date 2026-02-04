@@ -22,16 +22,22 @@ else
 {
     <MudTable Items="messages" Striped="true" Hover="true">
         <HeaderContent>
-            <MudTh>#</MudTh>
-            <MudTh>User ID</MudTh>
+            <MudTh>Room</MudTh>
             <MudTh>Message</MudTh>
             <MudTh>Sent At</MudTh>
             <MudTh>Checked-In?</MudTh>
-            <MudTh>Room</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd DataLabel="#">@context.Id</MudTd>
-            <MudTd DataLabel="User ID">@context.UserId</MudTd>
+            <MudTd DataLabel="Room">
+                @if (context.HasActiveBooking && !string.IsNullOrEmpty(context.RoomNumber))
+                {
+                    @context.RoomNumber
+                }
+                else
+                {
+                    <MudText Color="Color.Secondary">—</MudText>
+                }
+            </MudTd>
             <MudTd DataLabel="Message">
 
                 <MudText>@context.Message</MudText>
@@ -73,16 +79,6 @@ else
                 else
                 {
                     <MudIcon Icon="@Icons.Material.Filled.Close" />
-                }
-            </MudTd>
-            <MudTd DataLabel="Room">
-                @if (context.HasActiveBooking && !string.IsNullOrEmpty(context.RoomNumber))
-                {
-                    @context.RoomNumber
-                }
-                else
-                {
-                    <MudText Color="Color.Secondary">—</MudText>
                 }
             </MudTd>
         </RowTemplate>
