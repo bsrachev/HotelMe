@@ -2,6 +2,7 @@
 @using HotelMe.Shared.Models
 @inject ChatService ChatService
 @inject AuthService AuthService
+@inject AiService AiService
 
 <MudText Typo="Typo.h5" Class="mb-4">💬 All Chat Messages</MudText>
 
@@ -31,7 +32,38 @@ else
         <RowTemplate>
             <MudTd DataLabel="#">@context.Id</MudTd>
             <MudTd DataLabel="User ID">@context.UserId</MudTd>
-            <MudTd DataLabel="Message">@context.Message</MudTd>
+            <MudTd DataLabel="Message">
+
+                <MudText>@context.Message</MudText>
+
+                <MudButton Variant="Variant.Text"
+                           Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.AutoAwesome"
+                           OnClick="@(() => GenerateReplies(context))"
+                           Class="mt-1">
+                    AI replies
+                </MudButton>
+
+                @if (aiForMessageId == context.Id)
+                {
+                    if (isGeneratingReplies)
+                    {
+                        <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mt-1" />
+                    }
+                    else if (aiReplies.Any())
+                    {
+                        <MudPaper Class="pa-2 mt-1" Elevation="1">
+                            <MudStack Spacing="1">
+                                @foreach (var r in aiReplies)
+                                {
+                                    <MudText Typo="Typo.body2">• @r</MudText>
+                                }
+                            </MudStack>
+                        </MudPaper>
+                    }
+                }
+
+            </MudTd>
             <MudTd DataLabel="Sent At">@context.SentAt.ToLocalTime().ToString("g")</MudTd>
             <MudTd DataLabel="Checked-In?">
                 @if (context.HasActiveBooking)
@@ -60,6 +92,10 @@ else
 @code {
     private bool isAdmin, isReady;
     private List<ChatMessage> messages = new();
+    private int? aiForMessageId;
+    private bool isGeneratingReplies;
+    private List<string> aiReplies = new();
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,4 +107,20 @@ else
 
         isReady = true;
     }
+
+    private async Task GenerateReplies(ChatMessage msg)
+    {
+        aiForMessageId = msg.Id;
+        isGeneratingReplies = true;
+        aiReplies.Clear();
+
+        aiReplies = await AiService.GetSmartReplies(
+            guestMessage: msg.Message,
+            roomNumber: msg.RoomNumber,
+            guestName: null
+        );
+
+        isGeneratingReplies = false;
+    }
+
 }

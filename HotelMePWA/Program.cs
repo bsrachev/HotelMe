@@ -25,6 +25,7 @@ builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<RoomService>();
 builder.Services.AddScoped<ChatService>();
 builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<AiService>();
 
 await builder.Build().RunAsync();
 
